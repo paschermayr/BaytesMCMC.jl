@@ -83,7 +83,7 @@ function get_acceptrate() end
 function move() end
 
 include("Core/Core.jl")
-#include("Kernels/Kernels.jl")
+include("Kernels/Kernels.jl")
 
 ################################################################################
 export
