@@ -42,7 +42,7 @@ function update!(energy::GaussianKineticEnergy, proposal::Proposal)
     return update!(energy, proposal.Σ, proposal.Σ⁻¹ᶜʰᵒˡ)
 end
 
-#!NOTE: DocumenterTools doe not seem to work for functor.
+#!NOTE: CI Docs break if functor is assigned for documentation.
 #"Evaluate kinetic energy with given metric."
 function (energy::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
     #!NOTE: see Betancourt (2016), Kρ == -log(ρ ∣ θᵤ)
@@ -65,13 +65,13 @@ function rand_ρ(_rng::Random.AbstractRNG, K::GaussianKineticEnergy, θᵤ=nothi
 end
 
 ############################################################################################
-#="""
+"""
 $(TYPEDEF)
 Hamiltonian struct that holds Kinetic energy and log target density function.
 
 # Fields
 $(TYPEDFIELDS)
-"""=#
+"""
 struct Hamiltonian{E<:KineticEnergy,D<:DiffObjective}
     "The kinetic energy specification."
     K::E
@@ -83,13 +83,13 @@ struct Hamiltonian{E<:KineticEnergy,D<:DiffObjective}
 end
 
 ############################################################################################
-#="""
+"""
 $(TYPEDEF)
 A point in phase space, consists of a position ModelWrappers.ℓObjectiveResult and a momentum ρ.
 
 # Fields
 $(TYPEDFIELDS)
-"""=#
+"""
 struct PhasePoint{T<:ℓObjectiveResult,S<:Real}
     "ModelWrappers.ℓObjectiveResult container"
     result::T
@@ -100,7 +100,7 @@ struct PhasePoint{T<:ℓObjectiveResult,S<:Real}
         return new{T,S}(result, ρ)
     end
 end
-#=
+
 """
 $(SIGNATURES)
 Log density for Hamiltonian `H` at `phasepoint`. If `ℓ(q) == -Inf` (rejected), skips the kinetic energy calculation.
@@ -109,7 +109,7 @@ Log density for Hamiltonian `H` at `phasepoint`. If `ℓ(q) == -Inf` (rejected),
 ```julia
 ```
 
-"""=#
+"""
 function ℓdensity(H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::PhasePoint)
     @unpack result, ρ = phasepoint
     isfinite(result.ℓθᵤ) || return oftype(result.ℓθᵤ, -Inf)
@@ -123,7 +123,6 @@ function calculate_ρ♯(H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::P
 end
 
 ############################################################################################
-#=
 """
 $(SIGNATURES)
 Take a leapfrog step of length `ϵ` from `phasepoint` along the Hamiltonian `H`.
@@ -133,7 +132,6 @@ Take a leapfrog step of length `ϵ` from `phasepoint` along the Hamiltonian `H`.
 ```
 
 """
-=#
 function leapfrog(
     H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::PhasePoint, ϵ::T
 ) where {T<:Real}
