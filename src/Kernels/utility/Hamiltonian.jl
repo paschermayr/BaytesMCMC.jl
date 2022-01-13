@@ -7,7 +7,7 @@ abstract type EuclideanKineticEnergy <: KineticEnergy end
 #!NOTE: May be converted to immutable struct. But for Riemmann Energy a matrix buffer would be nice to have.
 """
 $(TYPEDEF)
-Gaussian kinetic energy, with 'K(q,p) = p ∣ q ∼ 1/2 pᵀ⋅M⁻¹⋅p + log|M|` (without constant), which is independent of `q`.
+Gaussian kinetic energy, with K(q,p) = p ∣ q ∼ 1/2 pᵀ⋅M⁻¹⋅p + log|M| (without constant), which is independent of `q`.
 
 # Fields
 $(TYPEDFIELDS)
@@ -51,10 +51,14 @@ function (K::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where 
 end
 
 "Return `p♯ = M⁻¹⋅p`, used for turn diagnostics."
-calculate_ρ♯(K::GaussianKineticEnergy, ρ, θᵤ=nothing) = K.Σ * ρ
+function calculate_ρ♯(K::GaussianKineticEnergy, ρ, θᵤ=nothing)
+    return K.Σ * ρ
+end
 
 "Calculate the gradient of the logarithm of kinetic energy in momentum ρ."
-∇K(K::GaussianKineticEnergy, ρ, θᵤ=nothing) = calculate_ρ♯(K, ρ)
+function ∇K(K::GaussianKineticEnergy, ρ, θᵤ=nothing)
+    return calculate_ρ♯(K, ρ)
+end
 
 "Generate a random momentum from a kinetic energy at position ρ."
 function rand_ρ(_rng::Random.AbstractRNG, K::GaussianKineticEnergy, θᵤ=nothing)
