@@ -43,10 +43,10 @@ function update!(energy::GaussianKineticEnergy, proposal::Proposal)
 end
 
 #!NOTE: DocumenterTools doe not seem to work for functor.
-"Evaluate kinetic energy with given metric."
-function (K::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
+#"Evaluate kinetic energy with given metric."
+function (energy::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
     #!NOTE: see Betancourt (2016), Kρ == -log(ρ ∣ θᵤ)
-    return LinearAlgebra.dot(ρ, K.Σ * ρ) / 2 # + constant
+    return LinearAlgebra.dot(ρ, energy.Σ * ρ) / 2 # + constant
 end
 
 "Return `p♯ = M⁻¹⋅p`, used for turn diagnostics."
