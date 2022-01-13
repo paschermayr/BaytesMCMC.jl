@@ -64,7 +64,6 @@ using ModelWrappers:
     sample!
 import ModelWrappers: ModelWrappers, predict, generate, checkfinite
 
-#import Base: Base, resize!
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
 using LinearAlgebra:
     LinearAlgebra, Symmetric, Diagonal, diag, cholesky, inv, UniformScaling, dot, det, I
@@ -84,7 +83,7 @@ function get_acceptrate() end
 function move() end
 
 include("Core/Core.jl")
-include("Kernels/Kernels.jl")
+#include("Kernels/Kernels.jl")
 
 ################################################################################
 export
@@ -99,7 +98,6 @@ export
     TemperDefault,
 
     # ModelWrappers
-    @build,
     checkfinite,
     results,
     update!,

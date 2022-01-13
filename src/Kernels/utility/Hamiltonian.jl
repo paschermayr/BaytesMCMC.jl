@@ -45,20 +45,20 @@ end
 
 #!NOTE: DocumenterTools doe not seem to work for functor.
 "Evaluate kinetic energy with given metric."
-function (K::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
+function (energy::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
     #!NOTE: see Betancourt (2016), Kρ == -log(ρ ∣ θᵤ)
-    return LinearAlgebra.dot(ρ, K.Σ * ρ) / 2 # + constant
+    return LinearAlgebra.dot(ρ, energy.Σ * ρ) / 2 # + constant
 end
 
 "Return ``p♯ = M⁻¹⋅p``, used for turn diagnostics."
-calculate_ρ♯(K::GaussianKineticEnergy, ρ, θᵤ=nothing) = K.Σ * ρ
+calculate_ρ♯(energy::GaussianKineticEnergy, ρ, θᵤ=nothing) = energy.Σ * ρ
 
 "Calculate the gradient of the logarithm of kinetic energy in momentum ρ."
-∇K(K::GaussianKineticEnergy, ρ, θᵤ=nothing) = calculate_ρ♯(K, ρ)
+∇K(energy::GaussianKineticEnergy, ρ, θᵤ=nothing) = calculate_ρ♯(energy, ρ)
 
 "Generate a random momentum from a kinetic energy at position ρ."
-function rand_ρ(_rng::Random.AbstractRNG, K::GaussianKineticEnergy, θᵤ=nothing)
-    return K.Mᶜʰᵒˡ * randn(_rng, eltype(K.Mᶜʰᵒˡ), size(K.Mᶜʰᵒˡ, 1))
+function rand_ρ(_rng::Random.AbstractRNG, energy::GaussianKineticEnergy, θᵤ=nothing)
+    return energy.Mᶜʰᵒˡ * randn(_rng, eltype(energy.Mᶜʰᵒˡ), size(energy.Mᶜʰᵒˡ, 1))
 end
 
 ############################################################################################
