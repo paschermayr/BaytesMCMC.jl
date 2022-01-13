@@ -50,7 +50,7 @@ struct TrajectoryMetropolis{
 end
 
 function move(_rng::Random.AbstractRNG, trajectory::T) where {T<:TrajectoryMetropolis}
-    @unpack result₀, Σ, ϵ = trajectory
+    ArgCheck.@unpack result₀, Σ, ϵ = trajectory
     return rand(_rng, MvNormal(result₀.θᵤ, ϵ .* Σ))
 end
 

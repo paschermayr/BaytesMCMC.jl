@@ -1,17 +1,17 @@
 ############################################################################################
-"Kinetic Energy in HMC setting."
+#"Kinetic Energy in HMC setting."
 abstract type KineticEnergy end
-"Gaussian KE, independent of position parameter."
+#"Gaussian KE, independent of position parameter."
 abstract type EuclideanKineticEnergy <: KineticEnergy end
 
 #!NOTE: May be converted to immutable struct. But for Riemmann Energy a matrix buffer would be nice to have.
-"""
+#="""
 $(TYPEDEF)
 Gaussian kinetic energy, with K(q,p) = p ∣ q ∼ 1/2 pᵀ⋅M⁻¹⋅p + log|M| (without constant), which is independent of `q`.
 
 # Fields
 $(TYPEDFIELDS)
-"""
+"""=#
 mutable struct GaussianKineticEnergy{T<:AbstractMatrix,S<:AbstractMatrix} <: EuclideanKineticEnergy
     "Inverse Mass Matrix Σ ~ Posterior Covariance Matrix"
     Σ::T
@@ -23,11 +23,11 @@ mutable struct GaussianKineticEnergy{T<:AbstractMatrix,S<:AbstractMatrix} <: Euc
     end
 end
 
-"Gaussian kinetic energy with the given inverse covariance matrix `Σ`."
+#"Gaussian kinetic energy with the given inverse covariance matrix `Σ`."
 function GaussianKineticEnergy(Σ::AbstractMatrix)
     return GaussianKineticEnergy(Σ, LinearAlgebra.cholesky(LinearAlgebra.inv(Σ)).L)
 end
-"Gaussian kinetic energy with the given inverse covariance matrix `Σ`."
+#"Gaussian kinetic energy with the given inverse covariance matrix `Σ`."
 function GaussianKineticEnergy(Σ::Diagonal)
     return GaussianKineticEnergy(Σ, Diagonal(.√LinearAlgebra.inv.(LinearAlgebra.diag(Σ))))
 end
@@ -44,35 +44,35 @@ function update!(energy::GaussianKineticEnergy, proposal::Proposal)
 end
 
 #!NOTE: DocumenterTools doe not seem to work for functor.
-"Evaluate kinetic energy with given metric."
+#"Evaluate kinetic energy with given metric."
 function (K::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
     #!NOTE: see Betancourt (2016), Kρ == -log(ρ ∣ θᵤ)
     return LinearAlgebra.dot(ρ, K.Σ * ρ) / 2 # + constant
 end
 
-"Return `p♯ = M⁻¹⋅p`, used for turn diagnostics."
+#"Return `p♯ = M⁻¹⋅p`, used for turn diagnostics."
 function calculate_ρ♯(K::GaussianKineticEnergy, ρ, θᵤ=nothing)
     return K.Σ * ρ
 end
 
-"Calculate the gradient of the logarithm of kinetic energy in momentum ρ."
+#"Calculate the gradient of the logarithm of kinetic energy in momentum ρ."
 function ∇K(K::GaussianKineticEnergy, ρ, θᵤ=nothing)
     return calculate_ρ♯(K, ρ)
 end
 
-"Generate a random momentum from a kinetic energy at position ρ."
+#"Generate a random momentum from a kinetic energy at position ρ."
 function rand_ρ(_rng::Random.AbstractRNG, K::GaussianKineticEnergy, θᵤ=nothing)
     return K.Mᶜʰᵒˡ * randn(_rng, eltype(K.Mᶜʰᵒˡ), size(K.Mᶜʰᵒˡ, 1))
 end
 
 ############################################################################################
-"""
+#="""
 $(TYPEDEF)
 Hamiltonian struct that holds Kinetic energy and log target density function.
 
 # Fields
 $(TYPEDFIELDS)
-"""
+"""=#
 struct Hamiltonian{E<:KineticEnergy,D<:DiffObjective}
     "The kinetic energy specification."
     K::E
@@ -84,13 +84,13 @@ struct Hamiltonian{E<:KineticEnergy,D<:DiffObjective}
 end
 
 ############################################################################################
-"""
+#="""
 $(TYPEDEF)
 A point in phase space, consists of a position ModelWrappers.ℓObjectiveResult and a momentum ρ.
 
 # Fields
 $(TYPEDFIELDS)
-"""
+"""=#
 struct PhasePoint{T<:ℓObjectiveResult,S<:Real}
     "ModelWrappers.ℓObjectiveResult container"
     result::T
@@ -101,7 +101,7 @@ struct PhasePoint{T<:ℓObjectiveResult,S<:Real}
         return new{T,S}(result, ρ)
     end
 end
-
+#=
 """
 $(SIGNATURES)
 Log density for Hamiltonian `H` at `phasepoint`. If `ℓ(q) == -Inf` (rejected), skips the kinetic energy calculation.
@@ -110,7 +110,7 @@ Log density for Hamiltonian `H` at `phasepoint`. If `ℓ(q) == -Inf` (rejected),
 ```julia
 ```
 
-"""
+"""=#
 function ℓdensity(H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::PhasePoint)
     @unpack result, ρ = phasepoint
     isfinite(result.ℓθᵤ) || return oftype(result.ℓθᵤ, -Inf)
@@ -124,6 +124,7 @@ function calculate_ρ♯(H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::P
 end
 
 ############################################################################################
+#=
 """
 $(SIGNATURES)
 Take a leapfrog step of length `ϵ` from `phasepoint` along the Hamiltonian `H`.
@@ -133,6 +134,7 @@ Take a leapfrog step of length `ϵ` from `phasepoint` along the Hamiltonian `H`.
 ```
 
 """
+=#
 function leapfrog(
     H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::PhasePoint, ϵ::T
 ) where {T<:Real}

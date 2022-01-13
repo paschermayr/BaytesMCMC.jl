@@ -10,7 +10,7 @@ struct DiagnosticsMetropolis{T<:AbstractFloat} <: MCMCKernelDiagnostics
     "Discretization size"
     ϵ::T
     function DiagnosticsMetropolis(ϵ::T) where {T<:AbstractFloat}
-        @argcheck ϵ > 0.0 "Discretization size has to be positive"
+        ArgCheck.@argcheck ϵ > 0.0 "Discretization size has to be positive"
         return new{T}(ϵ)
     end
 end
