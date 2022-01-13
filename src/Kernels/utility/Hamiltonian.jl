@@ -43,15 +43,8 @@ function update!(energy::GaussianKineticEnergy, proposal::Proposal)
     return update!(energy, proposal.Σ, proposal.Σ⁻¹ᶜʰᵒˡ)
 end
 
-"""
-$(SIGNATURES)
-Evaluate kinetic energy with given metric.
-
-# Examples
-```julia
-```
-
-"""
+#!NOTE: DocumenterTools doe not seem to work for functor.
+"Evaluate kinetic energy with given metric."
 function (K::GaussianKineticEnergy)(ρ::AbstractVector{T}, θᵤ=nothing) where {T<:Real}
     #!NOTE: see Betancourt (2016), Kρ == -log(ρ ∣ θᵤ)
     return LinearAlgebra.dot(ρ, K.Σ * ρ) / 2 # + constant
