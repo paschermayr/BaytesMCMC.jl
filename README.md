@@ -2,13 +2,15 @@
 
 <!---
 ![logo](docs/src/assets/logo.svg)
-
-[![Documentation, Stable](xxx)](xxx)
-[![Documentation, Latest](xxx)](xxx)
 [![CI](xxx)](xxx)
-[![Codecov](xxx)](xxx)
 [![arXiv article](xxx)](xxx)
+
 -->
+[![Documentation, Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://paschermayr.github.io/BaytesMCMC.jl/)
+[![Build Status](https://github.com/paschermayr/BaytesMCMC.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/paschermayr/BaytesMCMC.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/paschermayr/BaytesMCMC.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/paschermayr/BaytesMCMC.jl)
+[![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
+
 
 BaytesMCMC.jl is a library to perform MCMC proposal steps on `ModelWrapper` structs, see [ModelWrappers.jl](https://github.com/paschermayr/ModelWrappers.jl).
 
@@ -115,26 +117,4 @@ If you use Baytes.jl for your own research, please consider citing the following
 
 ## License Notice
 
-Note that this package heavily uses and adapts code from the DynamicHMC.jl package (v3.1.0) licensed under MIT License. In particular,
-the files stepsize.jl and folders src/Kernels/NUTS have been heavily adapted and used.
-
-> Copyright (c) 2020: Tamas K. Papp.
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE.
->
+Note that this package heavily uses and adapts code from the DynamicHMC.jl package (v3.1.0) licensed under MIT License, see License.md.
