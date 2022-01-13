@@ -50,7 +50,7 @@ struct TrajectoryMetropolis{
 end
 
 function move(_rng::Random.AbstractRNG, trajectory::T) where {T<:TrajectoryMetropolis}
-    ArgCheck.@unpack result₀, Σ, ϵ = trajectory
+    @unpack result₀, Σ, ϵ = trajectory
     return rand(_rng, MvNormal(result₀.θᵤ, ϵ .* Σ))
 end
 
@@ -104,9 +104,6 @@ function get_acceptrate(
     end
 end
 
-ℓθᵤ_proposed = -3000
-ℓθᵤ = -2000
-exp(ℓθᵤ_proposed - ℓθᵤ)
 ############################################################################################
 # Export
 export Metropolis
