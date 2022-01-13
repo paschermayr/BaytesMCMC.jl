@@ -3,7 +3,6 @@ Working Examples for this module
 "
 ############################################################################################
 #Import
-
 include("utility/utility.jl")
 include("Metropolis/Metropolis.jl")
 include("MALA/MALA.jl")
