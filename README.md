@@ -11,6 +11,7 @@
 [![Coverage](https://codecov.io/gh/paschermayr/BaytesMCMC.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/paschermayr/BaytesMCMC.jl)
 [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 
+
 BaytesMCMC.jl is a library to perform MCMC proposal steps on `ModelWrapper` structs, see [ModelWrappers.jl](https://github.com/paschermayr/ModelWrappers.jl).
 
 <!---
