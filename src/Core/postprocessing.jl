@@ -1,0 +1,192 @@
+############################################################################################
+"""
+$(SIGNATURES)
+Callable struct to make initializing MCMC sampler easier in sampling library.
+
+# Examples
+```julia
+```
+
+"""
+struct MCMCConstructor{M,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefault} <:
+       AbstractConstructor
+    "Valid MCMC kernel."
+    kernel::M
+    "Parmeter to be tagged in MCMC sampler."
+    sym::S
+    "MCMC Default Arguments"
+    default::D
+    function MCMCConstructor(
+        kernel::Type{M}, sym::S, default::D
+    ) where {M<:MCMCKernel,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefault}
+        return new{typeof(kernel),S,D}(kernel, sym, default)
+    end
+end
+function (constructor::MCMCConstructor)(
+    _rng::Random.AbstractRNG, model::ModelWrapper, data::D,
+    Nchains::Integer, temperdefault::BaytesCore.TemperDefault{B, F}
+) where {D, B<:BaytesCore.UpdateBool, F<:AbstractFloat}
+    return MCMC(
+        _rng,
+        constructor.kernel,
+        Objective(model, data, constructor.sym),
+        Nchains,
+        temperdefault;
+        default=constructor.default,
+    )
+end
+function MCMC(
+    kernel::Type{M}, sym::S; kwargs...
+) where {M<:MCMCKernel,S<:Union{Symbol,NTuple{k,Symbol} where k}}
+    return MCMCConstructor(kernel, sym, MCMCDefault(; kwargs...))
+end
+
+############################################################################################
+function infer(diagnostics::Type{AbstractDiagnostics}, kernel::MCMCKernel)
+    return println("No known diagnostics for given kernel")
+end
+
+"""
+$(SIGNATURES)
+Infer MCMC diagnostics type.
+
+# Examples
+```julia
+```
+
+"""
+function infer(
+    _rng::Random.AbstractRNG,
+    diagnostics::Type{AbstractDiagnostics},
+    mcmc::MCMC,
+    model::ModelWrapper,
+    data::D,
+) where {D}
+    Tlik = eltype(mcmc.kernel.result.θᵤ)
+    TKernel = infer(_rng, diagnostics, mcmc.kernel, model, data)
+    TPrediction = infer(_rng, mcmc, model, data)
+    TGenerated = _infer_generated(_rng, mcmc, model, data)
+    return MCMCDiagnostics{Tlik,TKernel,TPrediction,TGenerated}
+end
+
+"""
+$(SIGNATURES)
+Infer type of predictions of MCMC sampler.
+
+# Examples
+```julia
+```
+
+"""
+function infer(_rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D) where {D}
+    objective = Objective(model, data, mcmc.tune.tagged)
+    return typeof(predict(_rng, objective))
+end
+
+"""
+$(SIGNATURES)
+Infer type of generated quantities of MCMC sampler.
+
+# Examples
+```julia
+```
+
+"""
+function _infer_generated(
+    _rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D
+) where {D}
+    objective = Objective(model, data, mcmc.tune.tagged)
+    return typeof(generate(_rng, objective, Val(mcmc.tune.generated)))
+end
+
+############################################################################################
+"""
+$(SIGNATURES)
+Print result for a single trace.
+
+# Examples
+```julia
+```
+
+"""
+function results(
+    diagnosticsᵛ::AbstractVector{M}, mcmc::MCMC, Ndigits::Integer, quantiles::Vector{T}
+) where {T<:Real,M<:MCMCDiagnostics}
+    println(
+        "### ",
+        Base.nameof(typeof(mcmc.kernel)),
+        " parameter target: ",
+        keys(mcmc.tune.tagged.parameter),
+    )
+    println(
+        "Sampler finished after ",
+        size(diagnosticsᵛ, 1),
+        " iterations with acceptance rates of ",
+        round.(
+            mean(diagnosticsᵛ[iter].accept.accepted for iter in eachindex(diagnosticsᵛ)) *
+            100;
+            digits=Ndigits,
+        ),
+        "%.",
+    )
+    println(
+        "Avg. initial ℓposterior: ",
+        round(mean(diagnosticsᵛ[begin].ℓθᵤ); digits=Ndigits),
+        ", Avg. final ℓposterior: ",
+        round(mean(diagnosticsᵛ[end].ℓθᵤ); digits=Ndigits),
+        ".",
+    )
+    ## Print kernel specific diagnostics
+    results(
+        [diagnosticsᵛ[iter].sampler for iter in eachindex(diagnosticsᵛ)], Ndigits, quantiles
+    )
+    ## Print Divergences
+    print_divergences(diagnosticsᵛ, mcmc.tune.phase)
+    return nothing
+end
+
+############################################################################################
+function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
+    sampler = generate_showvalues(diagnostics.sampler)
+    return function showvalues()
+        return (:mcmc, "diagnostics"),
+        (:iter, diagnostics.iter),
+        (:loglik, diagnostics.ℓθᵤ),
+        (:accepted, diagnostics.accept.accepted),
+        (:acceptancerate, diagnostics.accept.rate),
+        sampler()...
+    end
+end
+
+############################################################################################
+function result!(mcmc::MCMC, result::L) where {L<:ℓObjectiveResult}
+    mcmc.kernel.result = result
+    return nothing
+end
+
+function get_result(mcmc::MCMC)
+    return mcmc.kernel.result
+end
+
+function get_tagged(mcmc::MCMC)
+    return mcmc.tune.tagged
+end
+
+function get_loglik(mcmc::MCMC)
+    return mcmc.kernel.result.ℓθᵤ
+end
+
+function get_prediction(diagnostics::MCMCDiagnostics)
+    return diagnostics.prediction
+end
+
+function get_phase(mcmc::MCMC)
+    return mcmc.tune.phase
+end
+function get_iteration(mcmc::MCMC)
+    return mcmc.tune.iter.current
+end
+
+############################################################################################
+# Export
+export MCMCConstructor, infer, generate_showvalues
