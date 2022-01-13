@@ -64,7 +64,7 @@ using ModelWrappers:
     sample!
 import ModelWrappers: ModelWrappers, predict, generate, checkfinite
 
-import Base: Base, resize!
+#import Base: Base, resize!
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
 using LinearAlgebra:
     LinearAlgebra, Symmetric, Diagonal, diag, cholesky, inv, UniformScaling, dot, det, I
