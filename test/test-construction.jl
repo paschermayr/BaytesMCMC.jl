@@ -15,7 +15,7 @@ for iter in eachindex(objectives)
             for matrixadaption in massmatrices
                 ## Define MCMC default tuning parameter
                 mcmcdefault = MCMCDefault(;
-                    config_kw = (; metric = matrixadaption),
+                    config_kw = (; metric = matrixadaption, stepsizeadaption=UpdateFalse()),
                     GradientBackend = backend)
                 ## MCMC kernels
                 for kernel in kernels
