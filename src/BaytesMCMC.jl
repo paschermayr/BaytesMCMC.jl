@@ -22,7 +22,8 @@ using BaytesCore:
     TemperingTune,
     TemperingParameter,
     update,
-    checktemperature
+    checktemperature,
+    AcceptStatistic
 
 import BaytesCore:
     BaytesCore,

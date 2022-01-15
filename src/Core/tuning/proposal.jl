@@ -54,6 +54,20 @@ end
 
 ############################################################################################
 """
+$(SIGNATURES)
+Calculate regularized Covariance Matrix.
+
+# Examples
+```julia
+```
+
+"""
+function get_Σ(Σ::D, shrinkage::T) where {D<:Union{Diagonal,Symmetric},T<:Real}
+    return (1 - shrinkage) * Σ + shrinkage * UniformScaling(max(1e-3, median(diag(Σ))))
+end
+
+############################################################################################
+"""
 $(TYPEDEF)
 
 Proposal distribution container.
@@ -83,20 +97,6 @@ mutable struct Proposal{
             adaption, chain, Σ, Σ⁻¹ᶜʰᵒˡ, tune
         )
     end
-end
-
-############################################################################################
-"""
-$(SIGNATURES)
-Calculate regularized Covariance Matrix.
-
-# Examples
-```julia
-```
-
-"""
-function get_Σ(Σ::D, shrinkage::T) where {D<:Union{Diagonal,Symmetric},T<:Real}
-    return (1 - shrinkage) * Σ + shrinkage * UniformScaling(max(1e-3, median(diag(Σ))))
 end
 
 ############################################################################################

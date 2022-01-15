@@ -92,13 +92,13 @@ function propagate(
     divergent = !checkfinite(trajectory, resultᵖ) #!checkfinite(result, resultᵖ)
     if divergent
         return resultᵖ,
-        divergent, AcceptStatistic(zero(typeof(ϵ)), false),
+        divergent, BaytesCore.AcceptStatistic(zero(typeof(ϵ)), false),
         DiagnosticsMALA(ϵ)
     end
     ## Calculate proposal density and acceptance rate
     ℓqₜ = logpdf(MvNormal(resultᵖ.θᵤ + ϵ / 2 * Σ * resultᵖ.∇ℓθᵤ, ϵ * Σ), result.θᵤ)
     ℓqₜᵖ = logpdf(MvNormal(result.θᵤ + ϵ / 2 * Σ * result.∇ℓθᵤ, ϵ * Σ), resultᵖ.θᵤ)
-    accept_statistic = AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqₜ - ℓqₜᵖ))
+    accept_statistic = BaytesCore.AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqₜ - ℓqₜᵖ))
     ## Pack and return output
     return resultᵖ, divergent, accept_statistic, DiagnosticsMALA(ϵ)
 end

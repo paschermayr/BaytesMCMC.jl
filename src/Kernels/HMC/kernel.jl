@@ -109,7 +109,7 @@ function propagate(
         end
     end
     ## Pack container and return output
-    accept_statistic = AcceptStatistic(_rng, ℓdensity(H, phasepoint) - ℓH₀)
+    accept_statistic = BaytesCore.AcceptStatistic(_rng, ℓdensity(H, phasepoint) - ℓH₀)
     return phasepoint.result,
     divergent, accept_statistic,
     DiagnosticsHMC(tune.stepsize.ϵ, kernel.stepnumber.steps)

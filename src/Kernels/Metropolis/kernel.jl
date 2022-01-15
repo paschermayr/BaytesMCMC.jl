@@ -76,14 +76,14 @@ function propagate(
     divergent = !checkfinite(result, resultᵖ)
     if divergent
         return resultᵖ,
-        divergent, AcceptStatistic(zero(typeof(ϵ)), false),
+        divergent, BaytesCore.AcceptStatistic(zero(typeof(ϵ)), false),
         DiagnosticsMetropolis(ϵ)
     end
     ## Calculate Proposal density and acceptance rate
     ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
     ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
     ## Pack and return output
-    accept_statistic = AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqᵤ - ℓqᵤᵖ))
+    accept_statistic = BaytesCore.AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqᵤ - ℓqᵤᵖ))
     return resultᵖ, divergent, accept_statistic, DiagnosticsMetropolis(ϵ)
 end
 

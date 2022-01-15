@@ -94,7 +94,7 @@ function propagate(
     ## Pack container and return output
     return phasepointᵖ.result,
     is_divergent(sampler_statistic.termination),
-    AcceptStatistic(sampler_statistic.acceptance_rate, true),
+    BaytesCore.AcceptStatistic(sampler_statistic.acceptance_rate, true),
     sampler_statistic
 end
 
