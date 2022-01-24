@@ -42,6 +42,20 @@ struct MCMCDiagnostics{R<:AbstractFloat,E<:MCMCKernelDiagnostics,T,G} <: Abstrac
 end
 
 ############################################################################################
+function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
+    sampler = generate_showvalues(diagnostics.sampler)
+    return function showvalues()
+        return (:mcmc, "diagnostics"),
+        (:iter, diagnostics.iter),
+        (:loglik, diagnostics.ℓθᵤ),
+        (:accepted, diagnostics.accept.accepted),
+        (:acceptancerate, diagnostics.accept.rate),
+        (:Temperature, diagnostics.temperature),
+        sampler()...
+    end
+end
+
+############################################################################################
 """
 $(SIGNATURES)
 Print all divergences from a vector of MCMC Diagnostics.
@@ -81,4 +95,4 @@ end
 
 ############################################################################################
 # Export
-export MCMCDiagnostics
+export MCMCDiagnostics, generate_showvalues

@@ -148,20 +148,6 @@ function results(
 end
 
 ############################################################################################
-function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
-    sampler = generate_showvalues(diagnostics.sampler)
-    return function showvalues()
-        return (:mcmc, "diagnostics"),
-        (:iter, diagnostics.iter),
-        (:loglik, diagnostics.ℓθᵤ),
-        (:accepted, diagnostics.accept.accepted),
-        (:acceptancerate, diagnostics.accept.rate),
-        (:Temperature, diagnostics.temperature),
-        sampler()...
-    end
-end
-
-############################################################################################
 function result!(mcmc::MCMC, result::L) where {L<:ℓObjectiveResult}
     mcmc.kernel.result = result
     return nothing
@@ -171,25 +157,10 @@ function get_result(mcmc::MCMC)
     return mcmc.kernel.result
 end
 
-function get_tagged(mcmc::MCMC)
-    return mcmc.tune.tagged
-end
-
-function get_loglik(mcmc::MCMC)
+function get_ℓweight(mcmc::MCMC)
     return mcmc.kernel.result.ℓθᵤ
-end
-
-function get_prediction(diagnostics::MCMCDiagnostics)
-    return diagnostics.prediction
-end
-
-function get_phase(mcmc::MCMC)
-    return mcmc.tune.phase
-end
-function get_iteration(mcmc::MCMC)
-    return mcmc.tune.iter.current
 end
 
 ############################################################################################
 # Export
-export MCMCConstructor, infer, generate_showvalues
+export MCMCConstructor, infer
