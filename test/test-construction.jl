@@ -20,26 +20,22 @@ for iter in eachindex(objectives)
                 ## MCMC kernels
                 for kernel in kernels
                     ## Check if Default options work
-                    MCMC(kernel, _obj; default = mcmcdefault)
-                    MCMC(kernel, _obj, 1; default = mcmcdefault)
-                    MCMC(kernel, _obj, 1, TemperDefault(); default = mcmcdefault)
+                    MCMC(_rng, kernel, _obj; default = mcmcdefault)
+                    MCMC(_rng, kernel, _obj, 1; default = mcmcdefault)
                     ## Check if constructors work
                     constructor = MCMCConstructor(kernel, keys(_obj.tagged.parameter), mcmcdefault)
-                    constructor(_rng, _obj.model, _obj.data, 1, BaytesCore.TemperDefault())
+                    constructor(_rng, _obj.model, _obj.data, 1, _flattentype(1.0))
                     ## Initialize kernel and check if it can be run
                     mcmckernel = MCMC(
                         _rng,
                         kernel,
-                        _obj,
-                        1,
-                        BaytesCore.TemperDefault(BaytesCore.UpdateTrue(), 0.5);
+                        _obj;
                         default = mcmcdefault
                     )
                     propose(_rng, mcmckernel, _obj)
                     ## Test if Float types for proposal calculation all have same type after proposal step
                     # !NOTE kernel.result structs are already checked in ModelWrappers
                     @test mcmckernel.tune.stepsize.ϵ isa _flattentype
-                    @test mcmckernel.tune.tempering.val.current isa _flattentype
                     @test eltype(mcmckernel.tune.proposal.Σ) ==
                         eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                         eltype(mcmckernel.tune.proposal.chain) ==  _flattentype

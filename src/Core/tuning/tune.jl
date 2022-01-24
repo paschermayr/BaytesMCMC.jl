@@ -9,7 +9,6 @@ $(TYPEDFIELDS)
 """
 struct MCMCTune{
     A<:BaytesCore.UpdateBool,
-    B<:BaytesCore.UpdateBool,
     F<:AbstractFloat,
     T<:Tagged,
     E<:Tuple,
@@ -22,8 +21,6 @@ struct MCMCTune{
     stepsize::StepSizeTune{A,F}
     "Information for posterior covariance estimate"
     proposal::P
-    "Information about tempering target function."
-    tempering::TemperingTune{B,F}
     "Boolean if generated quantities should be generated while sampling"
     generated::Bool
     "Current iteration number"
@@ -33,13 +30,12 @@ struct MCMCTune{
         phase::PhaseTune{E},
         stepsize::StepSizeTune{A,F},
         proposal::P,
-        tempering::TemperingTune{B,F},
         generate::Bool,
-    ) where {A<:BaytesCore.UpdateBool,B<:BaytesCore.UpdateBool, F<:AbstractFloat,E<:Tuple,P<:Proposal}
+    ) where {A<:BaytesCore.UpdateBool,F<:AbstractFloat,E<:Tuple,P<:Proposal}
         #!NOTE: Start with 0, so first proposal step will update iter to 1
         iter = Iterator(0)
-        return new{A,B,F,typeof(objective.tagged),E,P}(
-            objective.tagged, phase, stepsize, proposal, tempering, generate, iter
+        return new{A,F,typeof(objective.tagged),E,P}(
+            objective.tagged, phase, stepsize, proposal,generate,iter
         )
     end
 end
@@ -66,8 +62,6 @@ function update!(
     ## Update stepsize and proposal parameter given current sampling phase
     update!(tune.stepsize, acceptrate, tune.phase)
     update!(tune.proposal, θᵤ, tune.phase)
-    ## Update temepering value
-    update!(tune.tempering, tune.phase, tune.iter.current)
     ## Pack container
     return nothing
 end
@@ -94,7 +88,6 @@ function printtune(tune::MCMCTune, diagparam::Integer=size(tune.proposal.chain, 
     #!NOTE: This will be Dualaveraging Parameter for first update! in new samplingphase, hence in final sampling phase only the smoothed ϵ is returned, and the dualaverage has no impact cause it wont compute anymore when Exploration+update=false
     #!NOTE: Hence, the stepsize multiplier will only come into effect at NEXT iteration with un-smoothed epsilon, in case adaption is still performed
     println("Phase stepsize: ", tune.stepsize.ϵ)
-    println("Phase temperature: ", tune.tempering.val.current)
     println(
         "Phase (avg) stepsize: ",
         exp(tune.stepsize.dualaverage.logϵ),

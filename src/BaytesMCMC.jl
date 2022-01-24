@@ -18,11 +18,7 @@ using BaytesCore:
     logsumexp,
     logaddexp,
     logmeanexp,
-    TemperDefault,
-    TemperingTune,
-    TemperingParameter,
     update,
-    checktemperature,
     AcceptStatistic
 
 import BaytesCore:
@@ -37,8 +33,6 @@ import BaytesCore:
     propose!,
     propagate,
     propagate!,
-    adapt,
-    adapt!,
     get_result,
     get_tagged,
     result!,
@@ -96,7 +90,6 @@ export
     propose!,
     propagate,
     propagate!,
-    TemperDefault,
 
     # ModelWrappers
     checkfinite,

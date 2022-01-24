@@ -22,7 +22,7 @@ data_uv = randn(_rng, 1000)
 # Initiate Base Model to check sampler
 
 ######################################## Model 1
-struct MyBaseModel <: AbstractModel end
+struct MyBaseModel <: ModelName end
 myparameter = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
 mymodel = ModelWrapper(MyBaseModel(), myparameter)
 

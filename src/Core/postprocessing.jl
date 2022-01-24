@@ -23,15 +23,17 @@ struct MCMCConstructor{M,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefaul
     end
 end
 function (constructor::MCMCConstructor)(
-    _rng::Random.AbstractRNG, model::ModelWrapper, data::D,
-    Nchains::Integer, temperdefault::BaytesCore.TemperDefault{B, F}
-) where {D, B<:BaytesCore.UpdateBool, F<:AbstractFloat}
+    _rng::Random.AbstractRNG,
+    model::ModelWrapper,
+    data::D,
+    Nchains::Integer,
+    temperature::F
+) where {D, F<:AbstractFloat}
     return MCMC(
         _rng,
         constructor.kernel,
-        Objective(model, data, constructor.sym),
-        Nchains,
-        temperdefault;
+        Objective(model, data, Tagged(model, constructor.sym), temperature),
+        Nchains;
         default=constructor.default,
     )
 end
@@ -154,6 +156,7 @@ function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
         (:loglik, diagnostics.ℓθᵤ),
         (:accepted, diagnostics.accept.accepted),
         (:acceptancerate, diagnostics.accept.rate),
+        (:Temperature, diagnostics.temperature),
         sampler()...
     end
 end

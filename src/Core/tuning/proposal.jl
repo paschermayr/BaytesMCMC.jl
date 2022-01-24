@@ -109,7 +109,7 @@ Calculate regularized Covariance Matrix and Cholesky decomposition.
 ```
 
 """
-function adapt!(proposal::P, metric::MDense) where {P<:Proposal}
+function update!(proposal::P, metric::MDense) where {P<:Proposal}
     @unpack Σ, Σ⁻¹ᶜʰᵒˡ, matrixtune, chain = proposal
     @unpack metric, shrinkage = matrixtune
     ## Compute new estimate
@@ -119,7 +119,7 @@ function adapt!(proposal::P, metric::MDense) where {P<:Proposal}
     @pack! proposal = Σ, Σ⁻¹ᶜʰᵒˡ
     return nothing
 end
-function adapt!(proposal::P, metric::MDiagonal) where {P<:Proposal}
+function update!(proposal::P, metric::MDiagonal) where {P<:Proposal}
     @unpack Σ, Σ⁻¹ᶜʰᵒˡ, matrixtune, chain = proposal
     @unpack metric, shrinkage = matrixtune
     ## Compute new estimate
@@ -129,10 +129,10 @@ function adapt!(proposal::P, metric::MDiagonal) where {P<:Proposal}
     @pack! proposal = Σ, Σ⁻¹ᶜʰᵒˡ
     return nothing
 end
-function adapt!(proposal::P, metric::MUnit) where {P<:Proposal}
+function update!(proposal::P, metric::MUnit) where {P<:Proposal}
     return nothing
 end
-adapt!(proposal::P) where {P<:Proposal} = adapt!(proposal, proposal.matrixtune.metric)
+update!(proposal::P) where {P<:Proposal} = update!(proposal, proposal.matrixtune.metric)
 
 ############################################################################################
 """
@@ -180,7 +180,7 @@ function update!(
         proposal.chain[iter, phase.iter.current] = θᵤ[iter]
     end
     ## Estimate new covariance matrix
-    adapt!(proposal)
+    update!(proposal)
     ## Preallocate new buffer for chain in next phase
     chain!(proposal, phasename, phase.iterations[phase.counter.current])
     return nothing

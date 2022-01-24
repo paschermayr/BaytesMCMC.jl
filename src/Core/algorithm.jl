@@ -52,15 +52,10 @@ function MCMC(
     _rng::Random.AbstractRNG,
     kernel::Type{M},
     objective::Objective,
-    Nchains::Integer = 1,
-    temperdefault::BaytesCore.TemperDefault{B, T} =
-        BaytesCore.TemperDefault(BaytesCore.UpdateFalse(),
-        objective.model.info.flattendefault.output(1.0)
-    );
+    Nchains::Integer = 1;
     default::D=MCMCDefault()
-) where {M<:MCMCKernel,D<:MCMCDefault,B<:BaytesCore.UpdateBool,T<:AbstractFloat}
+) where {M<:MCMCKernel,D<:MCMCDefault}
     ## Checks before algorithm is initiated
-    #ArgCheck.@argcheck Nchains == length(temperdefault.val) "Nchains and number of temperatures differ in size."
     @unpack output = objective.model.info.flattendefault
     @unpack config_kw, GradientBackend, TunedModel, generated = default
     ## Sample from prior if TunedModel == false
@@ -98,26 +93,10 @@ function MCMC(
         ϵ = output(config.ϵ)
     end
     stepsize = StepSizeTune(config.stepsizeadaption, init(DualAverage, config.δ, ϵ), ϵ)
-    ## Initial tempering struct
-    #!NOTE: Find last Adaptionˢˡᵒʷ phase to check at which point no longer tempering required
-    idx = findlast(map(iter -> phasetune.name[iter] == Adaptionˢˡᵒʷ(), eachindex(phasetune.name)))
-    tempering = BaytesCore.TemperingTune(output, temperdefault, phasetune.slices[idx])
     ## Initial MCMC Tune struct, and return MCMC container
-    mcmctune = MCMCTune(objective, phasetune, stepsize, proposal, tempering, generated)
+    mcmctune = MCMCTune(objective, phasetune, stepsize, proposal, generated)
     ## Return MCMC container
     return MCMC(mcmc, mcmctune)
-end
-function MCMC(
-    kernel::Type{M},
-    objective::Objective,
-    Nchains::Integer = 1,
-    temperdefault::BaytesCore.TemperDefault{B, T} =
-        BaytesCore.TemperDefault(BaytesCore.UpdateFalse(),
-        objective.model.info.flattendefault.output(1.0)
-    );
-    kwargs...,
-) where {M<:MCMCKernel,B<:BaytesCore.UpdateBool, T<:AbstractFloat}
-    return MCMC(Random.GLOBAL_RNG, kernel, objective, Nchains, temperdefault; kwargs...)
 end
 
 ############################################################################################
@@ -145,7 +124,7 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
     update!(mcmc.tune, mcmc.kernel.result, accept.rate)
     diagnostics = MCMCDiagnostics(
         mcmc.kernel.result.ℓθᵤ,
-        mcmc.tune.tempering.val.current,
+        objective.temperature,
         divergent,
         accept,
         sampler_statistic,
@@ -155,7 +134,6 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
     )
     return objective.model.val, diagnostics
 end
-propose(mcmc::MCMC, objective::Objective) = propose(Random.GLOBAL_RNG, mcmc, objective)
 
 ############################################################################################
 """
@@ -172,10 +150,11 @@ function propose!(
     mcmc::MCMC,
     model::ModelWrapper,
     data::D,
+    temperature::F = model.info.flattendefault.output(1.0),
     update::U=BaytesCore.UpdateTrue(),
-) where {D,U<:BaytesCore.UpdateBool}
+) where {D,F<:AbstractFloat, U<:BaytesCore.UpdateBool}
     ## Update Objective with new model parameter from other MCMC samplers and/or new/latent data
-    objective = Objective(model, data, mcmc.tune.tagged, mcmc.tune.tempering.val.current)
+    objective = Objective(model, data, mcmc.tune.tagged, temperature)
     update!(mcmc.kernel, objective, update) #Update Kernel with current objective/configs
     ## Compute MCMC step
     val, diagnostics = propose(_rng, mcmc, objective)
@@ -184,11 +163,6 @@ function propose!(
         model.val = val
     end
     return val, diagnostics
-end
-function propose!(
-    mcmc::MCMC, model::ModelWrapper, data::D, update::U=BaytesCore.UpdateTrue()
-) where {D,U<:BaytesCore.UpdateBool}
-    return propose!(Random.GLOBAL_RNG, mcmc, model, data, update)
 end
 
 ############################################################################################
