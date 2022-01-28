@@ -129,7 +129,7 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
         accept,
         sampler_statistic,
         ModelWrappers.predict(_rng, objective),
-        generate(_rng, objective, Val(mcmc.tune.generated)),
+        ModelWrappers.generate(_rng, objective, Val(mcmc.tune.generated)),
         mcmc.tune.iter.current,
     )
     return objective.model.val, diagnostics

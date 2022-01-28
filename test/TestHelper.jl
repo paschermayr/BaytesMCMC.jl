@@ -13,7 +13,7 @@ N = 10^3
 ############################################################################################
 # Kernel and AD backends
 backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]
-kernels = [NUTS, HMC, MALA, Metropolis]
+kernels = [NUTS, HMC, MALA, Metropolis, Custom]
 massmatrices = [MDense(), MDiagonal(), MUnit()]
 
 data_uv = randn(_rng, 1000)

@@ -79,11 +79,11 @@ function propagate(
         divergent, BaytesCore.AcceptStatistic(zero(typeof(ϵ)), false),
         DiagnosticsMetropolis(ϵ)
     end
-    ## Calculate Proposal density and acceptance rate
-    ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
-    ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
+    ## Calculate Proposal density and acceptance rate ~ not needed for symmetric proposals
+    #ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
+    #ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
     ## Pack and return output
-    accept_statistic = BaytesCore.AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqᵤ - ℓqᵤᵖ))
+    accept_statistic = BaytesCore.AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ)) #+ (ℓqᵤ - ℓqᵤᵖ))
     return resultᵖ, divergent, accept_statistic, DiagnosticsMetropolis(ϵ)
 end
 
@@ -97,10 +97,10 @@ function get_acceptrate(
         trajectory = TrajectoryMetropolis(Σ, result, ϵ)
         ## Make Proposal step
         resultᵖ = ModelWrappers.log_density(objective, move(_rng, trajectory))
-        ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
-        ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
+        #ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
+        #ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
         ## Return acceptance rate
-        return exp((resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqᵤ - ℓqᵤᵖ)) #Unbounded accpetance rate
+        return exp((resultᵖ.ℓθᵤ - result.ℓθᵤ)) #+ (ℓqᵤ - ℓqᵤᵖ)) #Unbounded accpetance rate
     end
 end
 

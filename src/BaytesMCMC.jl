@@ -53,6 +53,7 @@ using ModelWrappers:
     AnalyticalDiffTune,
     sample,
     sample!
+    
 import ModelWrappers: ModelWrappers, predict, generate, checkfinite
 
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
@@ -86,17 +87,15 @@ export
     propose!,
     propagate,
     propagate!,
+    results,
+    update!,
 
     # ModelWrappers
     checkfinite,
-    results,
-    update!,
     init,
     init!,
-    propose,
-    propose!,
-    propagate,
-    propagate!,
+    predict,
+    generate,
 
     #MCMC
     MCMCKernel,
