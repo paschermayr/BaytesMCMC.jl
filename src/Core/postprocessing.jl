@@ -26,15 +26,15 @@ function (constructor::MCMCConstructor)(
     _rng::Random.AbstractRNG,
     model::ModelWrapper,
     data::D,
-    Nchains::Integer,
-    temperature::F
+    temperature::F,
+    info::BaytesCore.SampleDefault
 ) where {D, F<:AbstractFloat}
     return MCMC(
         _rng,
         constructor.kernel,
         Objective(model, data, Tagged(model, constructor.sym), temperature),
-        Nchains;
-        default=constructor.default,
+        constructor.default,
+        info
     )
 end
 function MCMC(

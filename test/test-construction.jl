@@ -20,17 +20,17 @@ for iter in eachindex(objectives)
                 ## MCMC kernels
                 for kernel in kernels
                     ## Check if Default options work
-                    MCMC(_rng, kernel, _obj; default = mcmcdefault)
-                    MCMC(_rng, kernel, _obj, 1; default = mcmcdefault)
+                    MCMC(_rng, kernel, _obj, mcmcdefault)
+                    MCMC(_rng, kernel, _obj, mcmcdefault, SampleDefault())
                     ## Check if constructors work
                     constructor = MCMCConstructor(kernel, keys(_obj.tagged.parameter), mcmcdefault)
-                    constructor(_rng, _obj.model, _obj.data, 1, _flattentype(1.0))
+                    constructor(_rng, _obj.model, _obj.data, _flattentype(1.0), SampleDefault())
                     ## Initialize kernel and check if it can be run
                     mcmckernel = MCMC(
                         _rng,
                         kernel,
-                        _obj;
-                        default = mcmcdefault
+                        _obj,
+                        mcmcdefault
                     )
                     propose(_rng, mcmckernel, _obj)
                     ## Test if Float types for proposal calculation all have same type after proposal step

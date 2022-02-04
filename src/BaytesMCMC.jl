@@ -19,7 +19,8 @@ using BaytesCore:
     logaddexp,
     logmeanexp,
     update,
-    AcceptStatistic
+    AcceptStatistic,
+    SampleDefault
 
 import BaytesCore:
     BaytesCore,
@@ -53,7 +54,7 @@ using ModelWrappers:
     AnalyticalDiffTune,
     sample,
     sample!
-    
+
 import ModelWrappers: ModelWrappers, predict, generate, checkfinite
 
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
@@ -89,6 +90,7 @@ export
     propagate!,
     results,
     update!,
+    SampleDefault,
 
     # ModelWrappers
     checkfinite,

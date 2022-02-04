@@ -52,9 +52,9 @@ function MCMC(
     _rng::Random.AbstractRNG,
     kernel::Type{M},
     objective::Objective,
-    Nchains::Integer = 1;
-    default::D=MCMCDefault()
-) where {M<:MCMCKernel,D<:MCMCDefault}
+    default::MCMCDefault=MCMCDefault(),
+    info::BaytesCore.SampleDefault = BaytesCore.SampleDefault()
+) where {M<:MCMCKernel}
     ## Checks before algorithm is initiated
     @unpack output = objective.model.info.flattendefault
     @unpack config_kw, GradientBackend, TunedModel, generated = default
