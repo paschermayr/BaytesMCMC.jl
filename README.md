@@ -76,7 +76,7 @@ mcmcdefault = MCMCDefault(;
   config_kw = (; ϵ = 1.0, stepsizeadaption = UpdateFalse(), steps = 10, metric = MDense()), GradientBackend = :ReverseDiff,
 )
 
-mcmc_customized = MCMC(HMC, myobjective; default = mcmcdefault)
+mcmc_customized = MCMC(HMC, myobjective, mcmcdefault)
 _val, _diagnostics = propose(_rng, mcmc_customized, myobjective)
 _val, _diagnostics = propose!(_rng, mcmc_customized, mymodel, data)
 ```
@@ -99,7 +99,7 @@ end
 predict(_rng, myobjective)
 generate(_rng, myobjective)
 
-mcmc_nuts = MCMC(NUTS, myobjective; default = MCMCDefault(generated = true))
+mcmc_nuts = MCMC(NUTS, myobjective, MCMCDefault(generated = true))
 _val, _diagnostics = propose(_rng, mcmc_nuts, myobjective)
 _diagnostics.prediction
 _diagnostics.generated
