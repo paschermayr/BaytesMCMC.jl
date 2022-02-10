@@ -21,6 +21,35 @@ struct Exploration <: SamplingPhase end
 """
 $(TYPEDEF)
 
+Default configuration for tuning iterations in each cycle.
+
+# Fields
+$(TYPEDFIELDS)
+"""
+struct ConfigTuningWindow
+    "MCMC Phase tuning window lengths, i.e: 5 = 5 repeats of second window in phasenames"
+    window::Vector{Int64}
+    "(Increasing) Length of windows, i.e.: if window=3, buffer=10 -> total window length: 10-20-30"
+    buffer::Vector{Int64}
+    "Name of phasenames, currently supported: Warmup(), Adaptionˢˡᵒʷ(), Adaptionᶠᵃˢᵗ(), Exploration()"
+    phasenames::Vector{SamplingPhase}
+    function ConfigTuningWindow(
+        window::Vector{Int64},
+        buffer::Vector{Int64},
+        phasenames::Vector{SamplingPhase}
+        )
+        @argcheck size(window, 1) == size(buffer, 1) "Window and Buffer size different"
+        @argcheck (size(window, 1) + 1) == size(phasenames, 1) "Window and phasename (without Exploration) size different"
+        return new(
+            window, buffer, phasenames
+            )
+    end
+end
+
+############################################################################################
+"""
+$(TYPEDEF)
+
 Information about current SamplingPhase.
 
 # Fields
@@ -118,4 +147,4 @@ end
 
 ############################################################################################
 # Export
-export SamplingPhase, Warmup, Adaptionˢˡᵒʷ, Adaptionᶠᵃˢᵗ, Exploration, PhaseTune
+export SamplingPhase, ConfigTuningWindow, Warmup, Adaptionˢˡᵒʷ, Adaptionᶠᵃˢᵗ, Exploration, PhaseTune

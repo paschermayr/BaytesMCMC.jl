@@ -13,6 +13,34 @@ NOTES:
 """
 $(TYPEDEF)
 
+Default configuration for stepsize adaption.
+
+# Fields
+$(TYPEDFIELDS)
+"""
+struct ConfigStepsize{A<:BaytesCore.UpdateBool,B<:BaytesCore.UpdateBool}
+    "Initial Discretization size"
+    ϵ::Float64
+    "Step size adaption"
+    stepsizeadaption::A
+    "Boolean if initial stepsize should be estimated"
+    initialstepsize::B
+    function ConfigStepsize(;
+        ϵ = 0.1,
+        stepsizeadaption = BaytesCore.UpdateTrue(),
+        initialstepsize = BaytesCore.UpdateFalse()
+        )
+        @argcheck ϵ > 0.0 "Discretization size has to be positive"
+        return new{typeof(stepsizeadaption), typeof(initialstepsize)}(
+            ϵ, stepsizeadaption, initialstepsize
+            )
+    end
+end
+
+############################################################################################
+"""
+$(TYPEDEF)
+
 Contains information for default Dual Averaging algorithm.
 
 # Fields
@@ -341,4 +369,4 @@ end
 
 ############################################################################################
 # Export
-export StepSizeTune, DualAverage, DualAverageParameter
+export StepSizeTune, ConfigStepsize, DualAverage, DualAverageParameter

@@ -7,23 +7,34 @@ Default arguments for MCMC constructor.
 # Fields
 $(TYPEDFIELDS)
 """
-struct MCMCDefault{K<:NamedTuple,S}
-    "Individual keyword arguments for tuning different MCMC engines."
-    config_kw::K
+struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G}
+    "Individual keyword arguments for tuning different MCMC kernels."
+    kernel::K
+    "Stepsize default configuration for adaption."
+    stepsize::S
+    "Proposal distribution default configuration for adaption."
+    proposal::P
     "Gradient backend used in MCMC step. Not used if Metropolis sampler is chosen."
-    GradientBackend::S
+    GradientBackend::G
     "Boolean if initial parameter are fixed or resampled."
     TunedModel::Bool
     "Boolean if generate(_rng, objective) for corresponding model is stored in MCMC Diagnostics."
     generated::Bool
     function MCMCDefault(;
-        config_kw=(;), GradientBackend=:ForwardDiff, TunedModel=true, generated=false
+        kernel=(;),
+        stepsize = ConfigStepsize(),
+        proposal = ConfigProposal(),
+        GradientBackend=:ForwardDiff,
+        TunedModel=true,
+        generated=false
     )
         ArgCheck.@argcheck (
             isa(GradientBackend, Symbol) || isa(GradientBackend, AnalyticalDiffTune)
         ) "GradientBackend keywords has to be either an AD symbol (:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zyogte), or an AnalyticalDiffTune object."
-        return new{typeof(config_kw),typeof(GradientBackend)}(
-            config_kw, GradientBackend, TunedModel, generated
+        return new{
+            typeof(kernel), typeof(stepsize), typeof(proposal), typeof(GradientBackend)
+        }(
+            kernel, stepsize, proposal, GradientBackend, TunedModel, generated
         )
     end
 end
@@ -57,14 +68,14 @@ function MCMC(
 ) where {M<:MCMCKernel}
     ## Checks before algorithm is initiated
     @unpack output = objective.model.info.flattendefault
-    @unpack config_kw, GradientBackend, TunedModel, generated = default
+    @unpack GradientBackend, TunedModel, generated = default
     ## Sample from prior if TunedModel == false
     if !TunedModel
         sample!(objective.model, objective.tagged)
     end
     @unpack model, data, tagged = objective
     ## Initialize default configuration for chosen algorithm
-    config = init(AbstractConfiguration, kernel, objective; config_kw...)
+    config = init(AbstractConfiguration, kernel, objective, default.proposal; default.kernel...)
     ##	If a valid AD backend is provided, change it to an AutomaticDifftune Object
     if isa(GradientBackend, Symbol)
         GradientBackend = AutomaticDiffTune(GradientBackend, objective)
@@ -73,26 +84,26 @@ function MCMC(
     mcmc = init(kernel, config, objective, GradientBackend)
     ## Initial Phase tune
     phasetune = PhaseTune(;
-        window=config.window, buffer=config.buffer, phasenames=config.phasenames
+        window=config.window.window, buffer=config.window.buffer, phasenames=config.window.phasenames
     )
     ## Initial Proposal tune
     proposal = Proposal(
         output,
-        config.proposaladaption,
-        MatrixTune(config.metric, config.shrinkage),
+        default.proposal.proposaladaption,
+        MatrixTune(default.proposal.metric, default.proposal.shrinkage),
         length(objective.tagged),
         phasetune.iterations[phasetune.counter.current],
     )
     ## Tune stepsize in case it is not assigned via local acceptance rate bisection
-    if config.stepsizeadaption isa BaytesCore.UpdateTrue
+    if default.stepsize.initialstepsize isa BaytesCore.UpdateTrue
         acceptrateᵗᵉᵐᵖ = get_acceptrate(_rng, mcmc, objective, proposal.Σ) # Functor to calculate local accpetance rate
         ϵ = find_initial_stepsize(
             InitialStepsizeSearch(output), acceptrateᵗᵉᵐᵖ
         )
     else
-        ϵ = output(config.ϵ)
+        ϵ = output(default.stepsize.ϵ)
     end
-    stepsize = StepSizeTune(config.stepsizeadaption, init(DualAverage, config.δ, ϵ), ϵ)
+    stepsize = StepSizeTune(default.stepsize.stepsizeadaption, init(DualAverage, config.δ, ϵ), ϵ)
     ## Initial MCMC Tune struct, and return MCMC container
     mcmctune = MCMCTune(objective, phasetune, stepsize, proposal, generated)
     ## Return MCMC container

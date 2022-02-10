@@ -73,7 +73,10 @@ This will update `mymodel` with the proposed parameter (if accepted), and return
 All MCMC kernels are initialized with sane default tuning parameter, but each field in the config.jl file of each sampler in src/Kernels can be fully customized. For instance, the following settings initializes a HMC kernel with fixed stepsize and a dense mass matrix adaption. Moreover, the ReverseDiff package is used for obtaining derivative information.
 ```julia
 mcmcdefault = MCMCDefault(;
-  config_kw = (; ϵ = 1.0, stepsizeadaption = UpdateFalse(), steps = 10, metric = MDense()), GradientBackend = :ReverseDiff,
+	kernel = (; stepnumber = ConfigStepnumber(; steps = 10)),
+	stepsize = ConfigStepsize(; ϵ = 1.0, stepsizeadaption = UpdateFalse()),
+	proposal = ConfigProposal(; metric = MDense()),
+	GradientBackend = :ReverseDiff,
 )
 
 mcmc_customized = MCMC(HMC, myobjective, mcmcdefault)

@@ -10,7 +10,7 @@ function init(
         difftune,
         config.energy,
         StepNumberTune(
-            config.stepnumberadaption, config.steps, config.maxsteps, config.∫dt
+            config.stepnumber.stepnumberadaption, config.stepnumber.steps, config.stepnumber.maxsteps, config.stepnumber.∫dt
         ),
     )
 end

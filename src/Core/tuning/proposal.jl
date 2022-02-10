@@ -19,6 +19,34 @@ struct MDiagonal <: MatrixMetric end
 struct MUnit <: MatrixMetric end
 
 ############################################################################################
+"""
+$(TYPEDEF)
+
+Default configuration for posterior Covariance Matrix adaption.
+
+# Fields
+$(TYPEDFIELDS)
+"""
+struct ConfigProposal{A<:BaytesCore.UpdateBool, M<:MatrixMetric}
+    "Boolean if Posterior covariance for proposal steps is adapted."
+    proposaladaption::A
+    "Covariance estimate metric: MDense(), MDiagonal(), MUnit()"
+    metric::M
+    "Shrinkage parameter towards Diagonal Matrix with equal variance"
+    shrinkage::Float64
+    function ConfigProposal(;
+        proposaladaption = BaytesCore.UpdateTrue(),
+        metric = MDiagonal(),
+        shrinkage = 0.05
+        )
+        @argcheck 0.0 <= shrinkage <= 1.0 "Shrinkage not bounded between 0 and 1"
+        return new{typeof(proposaladaption), typeof(metric)}(
+            proposaladaption, metric, shrinkage
+            )
+    end
+end
+
+############################################################################################
 #Wrapper to generate Covariance buffers
 function init(type::Type{T}, metric::MDense, param_length::Int64) where {T<:Real}
     Σ = LinearAlgebra.Symmetric(zeros(T, param_length, param_length) + LinearAlgebra.I)
@@ -256,4 +284,4 @@ end
 
 ############################################################################################
 # Export
-export MatrixMetric, MDense, MDiagonal, MUnit, MatrixTune, Proposal, update!
+export MatrixMetric, MDense, MDiagonal, MUnit, ConfigProposal, MatrixTune, Proposal, update!
