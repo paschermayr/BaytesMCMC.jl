@@ -132,14 +132,14 @@ function results(
     )
     println(
         "Avg. initial ℓposterior: ",
-        round(mean(diagnosticsᵛ[begin].ℓθᵤ); digits=Ndigits),
+        round(mean(diagnosticsᵛ[begin].base.ℓobjective); digits=Ndigits),
         ", Avg. final ℓposterior: ",
-        round(mean(diagnosticsᵛ[end].ℓθᵤ); digits=Ndigits),
+        round(mean(diagnosticsᵛ[end].base.ℓobjective); digits=Ndigits),
         ".",
     )
     ## Print kernel specific diagnostics
     results(
-        [diagnosticsᵛ[iter].sampler for iter in eachindex(diagnosticsᵛ)], Ndigits, quantiles
+        [diagnosticsᵛ[iter].kernel for iter in eachindex(diagnosticsᵛ)], Ndigits, quantiles
     )
     ## Print Divergences
     print_divergences(diagnosticsᵛ, mcmc.tune.phase)

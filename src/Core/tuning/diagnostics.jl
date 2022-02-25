@@ -37,7 +37,7 @@ end
 
 ############################################################################################
 function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
-    sampler = generate_showvalues(diagnostics.sampler)
+    kernel = generate_showvalues(diagnostics.kernel)
     return function showvalues()
         return (:mcmc, "diagnostics"),
         (:iter, diagnostics.base.iter),
@@ -45,7 +45,7 @@ function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
         (:Temperature, diagnostics.base.temperature),
         (:accepted, diagnostics.accept.accepted),
         (:acceptancerate, diagnostics.accept.rate),
-        sampler()...
+        kernel()...
     end
 end
 
