@@ -7,36 +7,30 @@ MCMC Diagnostics container.
 # Fields
 $(TYPEDFIELDS)
 """
-struct MCMCDiagnostics{R<:AbstractFloat,E<:MCMCKernelDiagnostics,T,G} <: AbstractDiagnostics
-    ## Common MCMC output statistics
-    "Evaluation of target function at current iteration."
-    ℓθᵤ::R
-    "Temperature for log posterior evaluation"
-    temperature::R
+struct MCMCDiagnostics{
+    P,
+    K<:MCMCKernelDiagnostics,
+    G
+} <: AbstractDiagnostics
+    "Diagnostics used for all Baytes kernels"
+    base::BaytesCore.BaseDiagnostics{P}
+    "Kernel specific diagnostics."
+    kernel::K
     "Boolean if diverged."
     divergence::Bool
     "Acceptance Rate of current step."
-    accept::AcceptStatistic{R}
-    "Sampler specific diagnostics."
-    sampler::E
-    "Predicted sample of model."
-    prediction::T
+    accept::AcceptStatistic
     "Generated quantities specified for objective"
     generated::G
-    "Current iteration number."
-    iter::Int64
     function MCMCDiagnostics(
-        ℓθᵤ::R,
-        temperature::R,
+        base::BaytesCore.BaseDiagnostics{P},
+        kerneldiagnostics::K,
         divergence::Bool,
-        accept::AcceptStatistic{R},
-        kerneldiagnostics::E,
-        prediction::T,
+        accept::AcceptStatistic,
         generated::G,
-        iter::Int64,
-    ) where {R<:AbstractFloat,E<:MCMCKernelDiagnostics,T,G}
-        return new{R,E,T,G}(
-            ℓθᵤ, temperature, divergence, accept, kerneldiagnostics, prediction, generated, iter
+    ) where {P,K<:MCMCKernelDiagnostics,G}
+        return new{P,K,G}(
+            base, kerneldiagnostics, divergence, accept, generated
         )
     end
 end
@@ -46,11 +40,11 @@ function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
     sampler = generate_showvalues(diagnostics.sampler)
     return function showvalues()
         return (:mcmc, "diagnostics"),
-        (:iter, diagnostics.iter),
-        (:loglik, diagnostics.ℓθᵤ),
+        (:iter, diagnostics.base.iter),
+        (:logobjective, diagnostics.base.ℓobjective),
+        (:Temperature, diagnostics.base.temperature),
         (:accepted, diagnostics.accept.accepted),
         (:acceptancerate, diagnostics.accept.rate),
-        (:Temperature, diagnostics.temperature),
         sampler()...
     end
 end

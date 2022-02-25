@@ -36,7 +36,7 @@ import BaytesCore:
     propagate!,
     result!,
     get_result,
-    get_ℓweight,
+#    get_ℓweight,
     generate_showvalues
 
 using ModelWrappers:
@@ -60,7 +60,7 @@ import ModelWrappers: ModelWrappers, predict, generate, checkfinite
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
 using LinearAlgebra:
     LinearAlgebra, Symmetric, Diagonal, diag, cholesky, inv, UniformScaling, dot, det, I
-using Statistics: Statistics, mean, median, std, sqrt, quantile, var, cor, middle
+using Statistics: Statistics, mean, median, std, sqrt, quantile, var, cor, cov, middle
 using Distributions: Distributions, logpdf, MvNormal
 
 using DocStringExtensions:

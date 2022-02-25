@@ -123,7 +123,7 @@ Propose new parameter with mcmc sampler. If update=true, objective function will
 function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
     #!NOTE: Temperature is fixed for propose() step and will not be adjusted
     ## Make MCMC Proposal step
-    resultᵖ, divergent, accept, sampler_statistic = propagate(
+    resultᵖ, divergent, accept, kernel_diagnostics = propagate(
         _rng, mcmc.kernel, mcmc.tune, objective
     )
     ## If accepted, update kernel and Model parameter
@@ -134,14 +134,16 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
     ## Upate tuning container - includes storing current parameter, updating sampling phase, discretization steps, and proposal distribution (in that order)
     update!(mcmc.tune, mcmc.kernel.result, accept.rate)
     diagnostics = MCMCDiagnostics(
-        mcmc.kernel.result.ℓθᵤ,
-        objective.temperature,
+        BaytesCore.BaseDiagnostics(
+            mcmc.kernel.result.ℓθᵤ,
+            objective.temperature,
+            ModelWrappers.predict(_rng, objective),
+            mcmc.tune.iter.current
+        ),
+        kernel_diagnostics,
         divergent,
         accept,
-        sampler_statistic,
-        ModelWrappers.predict(_rng, objective),
-        ModelWrappers.generate(_rng, objective, Val(mcmc.tune.generated)),
-        mcmc.tune.iter.current,
+        ModelWrappers.generate(_rng, objective, Val(mcmc.tune.generated))
     )
     return objective.model.val, diagnostics
 end

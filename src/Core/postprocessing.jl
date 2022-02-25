@@ -8,8 +8,7 @@ Callable struct to make initializing MCMC sampler easier in sampling library.
 ```
 
 """
-struct MCMCConstructor{M,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefault} <:
-       AbstractConstructor
+struct MCMCConstructor{M,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefault} <: AbstractConstructor
     "Valid MCMC kernel."
     kernel::M
     "Parmeter to be tagged in MCMC sampler."
@@ -64,11 +63,11 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    Tlik = eltype(mcmc.kernel.result.θᵤ)
+#    Tlik = eltype(mcmc.kernel.result.θᵤ)
     TKernel = infer(_rng, diagnostics, mcmc.kernel, model, data)
     TPrediction = infer(_rng, mcmc, model, data)
-    TGenerated = _infer_generated(_rng, mcmc, model, data)
-    return MCMCDiagnostics{Tlik,TKernel,TPrediction,TGenerated}
+    TGenerated = infer_generated(_rng, mcmc, model, data)
+    return MCMCDiagnostics{TPrediction,TKernel,TGenerated}
 end
 
 """
@@ -94,7 +93,7 @@ Infer type of generated quantities of MCMC sampler.
 ```
 
 """
-function _infer_generated(
+function infer_generated(
     _rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D
 ) where {D}
     objective = Objective(model, data, mcmc.tune.tagged)
@@ -156,11 +155,11 @@ end
 function get_result(mcmc::MCMC)
     return mcmc.kernel.result
 end
-
+#=
 function get_ℓweight(mcmc::MCMC)
     return mcmc.kernel.result.ℓθᵤ
 end
-
+=#
 ############################################################################################
 # Export
 export MCMCConstructor, infer

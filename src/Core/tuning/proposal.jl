@@ -141,7 +141,7 @@ function update!(proposal::P, metric::MDense) where {P<:Proposal}
     @unpack Σ, Σ⁻¹ᶜʰᵒˡ, matrixtune, chain = proposal
     @unpack metric, shrinkage = matrixtune
     ## Compute new estimate
-    Σ .= get_Σ(LinearAlgebra.Symmetric(cov(chain')), shrinkage)
+    Σ .= get_Σ(LinearAlgebra.Symmetric(Statistics.cov(chain')), shrinkage)
     Σ⁻¹ᶜʰᵒˡ .= LinearAlgebra.cholesky(LinearAlgebra.inv(Σ)).L
     ## Pack container and return matrices
     @pack! proposal = Σ, Σ⁻¹ᶜʰᵒˡ
