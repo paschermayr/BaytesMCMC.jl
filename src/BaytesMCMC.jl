@@ -104,9 +104,6 @@ export
     MCMCKernelDiagnostics,
     MCMCDiagnostics,
     get_acceptrate,
-    move,
-    Adaption,
-    AdaptTrue,
-    AdaptFalse
+    move
 
 end
