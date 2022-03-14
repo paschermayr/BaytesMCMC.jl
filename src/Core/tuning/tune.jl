@@ -9,6 +9,7 @@ $(TYPEDFIELDS)
 """
 struct MCMCTune{
     A<:BaytesCore.UpdateBool,
+    B<:BaytesCore.UpdateBool,
     F<:AbstractFloat,
     T<:Tagged,
     E<:Tuple,
@@ -22,7 +23,7 @@ struct MCMCTune{
     "Information for posterior covariance estimate"
     proposal::P
     "Boolean if generated quantities should be generated while sampling"
-    generated::Bool
+    generated::B
     "Current iteration number"
     iter::Iterator
     function MCMCTune(
@@ -30,12 +31,12 @@ struct MCMCTune{
         phase::PhaseTune{E},
         stepsize::StepSizeTune{A,F},
         proposal::P,
-        generate::Bool,
-    ) where {A<:BaytesCore.UpdateBool,F<:AbstractFloat,E<:Tuple,P<:Proposal}
+        generate::B,
+    ) where {A<:BaytesCore.UpdateBool,B<:BaytesCore.UpdateBool,F<:AbstractFloat,E<:Tuple,P<:Proposal}
         #!NOTE: Start with 0, so first proposal step will update iter to 1
         iter = Iterator(0)
-        return new{A,F,typeof(objective.tagged),E,P}(
-            objective.tagged, phase, stepsize, proposal,generate,iter
+        return new{A,B,F,typeof(objective.tagged),E,P}(
+            objective.tagged, phase, stepsize, proposal, generate, iter
         )
     end
 end

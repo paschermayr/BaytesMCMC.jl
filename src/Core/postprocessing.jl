@@ -97,7 +97,7 @@ function infer_generated(
     _rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D
 ) where {D}
     objective = Objective(model, data, mcmc.tune.tagged)
-    return typeof(generate(_rng, objective, Val(mcmc.tune.generated)))
+    return typeof(generate(_rng, objective, mcmc.tune.generated))
 end
 
 ############################################################################################

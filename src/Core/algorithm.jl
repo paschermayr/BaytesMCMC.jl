@@ -7,7 +7,7 @@ Default arguments for MCMC constructor.
 # Fields
 $(TYPEDFIELDS)
 """
-struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G}
+struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, U<:BaytesCore.UpdateBool}
     "Individual keyword arguments for tuning different MCMC kernels."
     kernel::K
     "Stepsize default configuration for adaption."
@@ -19,20 +19,20 @@ struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G}
     "Boolean if initial parameter are fixed or resampled."
     TunedModel::Bool
     "Boolean if generate(_rng, objective) for corresponding model is stored in MCMC Diagnostics."
-    generated::Bool
+    generated::U
     function MCMCDefault(;
         kernel=(;),
         stepsize = ConfigStepsize(),
         proposal = ConfigProposal(),
         GradientBackend=:ForwardDiff,
         TunedModel=true,
-        generated=false
+        generated=BaytesCore.UpdateFalse()
     )
         ArgCheck.@argcheck (
             isa(GradientBackend, Symbol) || isa(GradientBackend, AnalyticalDiffTune)
         ) "GradientBackend keywords has to be either an AD symbol (:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zyogte), or an AnalyticalDiffTune object."
         return new{
-            typeof(kernel), typeof(stepsize), typeof(proposal), typeof(GradientBackend)
+            typeof(kernel), typeof(stepsize), typeof(proposal), typeof(GradientBackend), typeof(generated)
         }(
             kernel, stepsize, proposal, GradientBackend, TunedModel, generated
         )
@@ -143,7 +143,7 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
         kernel_diagnostics,
         divergent,
         accept,
-        ModelWrappers.generate(_rng, objective, Val(mcmc.tune.generated))
+        ModelWrappers.generate(_rng, objective, mcmc.tune.generated)
     )
     return objective.model.val, diagnostics
 end
