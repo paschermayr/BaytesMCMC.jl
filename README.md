@@ -102,7 +102,7 @@ end
 predict(_rng, myobjective)
 generate(_rng, myobjective)
 
-mcmc_nuts = MCMC(NUTS, myobjective, MCMCDefault(generated = true))
+mcmc_nuts = MCMC(NUTS, myobjective, MCMCDefault(generated = UpdateTrue()))
 _val, _diagnostics = propose(_rng, mcmc_nuts, myobjective)
 _diagnostics.prediction
 _diagnostics.generated
