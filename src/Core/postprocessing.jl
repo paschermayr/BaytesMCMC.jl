@@ -81,7 +81,7 @@ Infer type of predictions of MCMC sampler.
 """
 function infer(_rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D) where {D}
     objective = Objective(model, data, mcmc.tune.tagged)
-    return typeof(predict(_rng, objective))
+    return typeof(predict(_rng, mcmc, objective))
 end
 
 """
@@ -155,11 +155,11 @@ end
 function get_result(mcmc::MCMC)
     return mcmc.kernel.result
 end
-#=
-function get_ℓweight(mcmc::MCMC)
-    return mcmc.kernel.result.ℓθᵤ
+
+function predict(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
+    return predict(_rng, objective)
 end
-=#
+
 ############################################################################################
 # Export
-export MCMCConstructor, infer
+export MCMCConstructor, infer, predict

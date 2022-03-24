@@ -137,7 +137,7 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
         BaytesCore.BaseDiagnostics(
             mcmc.kernel.result.ℓθᵤ,
             objective.temperature,
-            ModelWrappers.predict(_rng, objective),
+            ModelWrappers.predict(_rng, mcmc, objective),
             mcmc.tune.iter.current
         ),
         kernel_diagnostics,
