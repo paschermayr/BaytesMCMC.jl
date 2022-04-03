@@ -92,8 +92,8 @@ struct DualAverage{T<:AbstractFloat}
     "AVERAGED log step"
     logϵ̄::T
     function DualAverage(
-        adaption::DualAverageParameter{T}, μ::T, t::I, H̄::T, logϵ::T, logϵ̄::T
-    ) where {T<:Real,I<:Integer}
+        adaption::DualAverageParameter{T}, μ::A, t::I, H̄::B, logϵ::C, logϵ̄::D
+    ) where {T<:Real,I<:Integer, A<:Real, B<:Real, C<:Real, D<:Real}
         return new{T}(adaption, μ, t, H̄, logϵ, logϵ̄)
     end
 end

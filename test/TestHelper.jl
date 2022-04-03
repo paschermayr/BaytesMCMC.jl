@@ -12,8 +12,10 @@ N = 10^3
 
 ############################################################################################
 # Kernel and AD backends
-backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]
 kernels = [NUTS, HMC, MALA, Metropolis, Custom]
+gradientkernels = [NUTS, HMC, MALA]
+
+backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]
 massmatrices = [MDense(), MDiagonal(), MUnit()]
 generating = [UpdateFalse(), UpdateTrue()]
 

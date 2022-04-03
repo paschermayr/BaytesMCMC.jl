@@ -77,17 +77,19 @@ for iter in eachindex(objectives)
 end
 
 ############################################################################################
+#!NOTE: MH often does not reach stepsize in default number of steps - keep out in settings
+
 for iter in eachindex(objectives)
     _obj = objectives[iter]
     _flattentype = _obj.model.info.flattendefault.output
     @testset "Stepsize initial estimate, all models" begin
         for backend in backends
             mcmcdefault = MCMCDefault(;
-                stepsize = ConfigStepsize(; stepsizeadaption=UpdateTrue()),
+                stepsize = ConfigStepsize(; initialstepsize = UpdateTrue(), stepsizeadaption=UpdateTrue()),
                 GradientBackend = backend
             )
             ## MCMC kernels
-            for kernel in kernels
+            for kernel in kernels[1:4] #gradientkernels if error during test
                 ## Initialize kernel and check if it can be run
                 mcmckernel = MCMC(
                     _rng,
@@ -96,6 +98,24 @@ for iter in eachindex(objectives)
                     mcmcdefault
                 )
                 @test mcmckernel.tune.stepsize.ϵ isa _flattentype
+                ## Stepsize Adaption
+                _val1, _diag1 = propose(_rng, mcmckernel, _obj)
+                @test mcmckernel.tune.stepsize.ϵ isa _flattentype
+                @test eltype(mcmckernel.tune.proposal.Σ) ==
+                    eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
+                    eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
+                ## Stepsize Adaption
+                _val2, _diag2 = propose!(_rng, mcmckernel, _obj.model, _obj.data, _obj.temperature, UpdateTrue())
+                @test mcmckernel.tune.stepsize.ϵ isa _flattentype
+                @test eltype(mcmckernel.tune.proposal.Σ) ==
+                    eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
+                    eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
+                ## Stepsize Adaption
+                _val3, _diag3 = propose!(_rng, mcmckernel, _obj.model, _obj.data, _obj.temperature, UpdateFalse())
+                @test mcmckernel.tune.stepsize.ϵ isa _flattentype
+                @test eltype(mcmckernel.tune.proposal.Σ) ==
+                    eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
+                    eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
             end
         end
     end
