@@ -15,13 +15,14 @@ N = 10^3
 backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]
 kernels = [NUTS, HMC, MALA, Metropolis, Custom]
 massmatrices = [MDense(), MDiagonal(), MUnit()]
-
-data_uv = randn(_rng, 1000)
+generating = [UpdateFalse(), UpdateTrue()]
 
 ############################################################################################
 # Initiate Base Model to check sampler
 
 ######################################## Model 1
+data_uv = randn(_rng, 1000)
+
 struct MyBaseModel <: ModelName end
 myparameter = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
 mymodel = ModelWrapper(MyBaseModel(), myparameter)
@@ -35,3 +36,15 @@ function (objective::Objective{<:ModelWrapper{MyBaseModel}})(θ::NamedTuple)
 	return lprior + llik
 end
 myobjective(myobjective.model.val)
+
+function ModelWrappers.generate(_rng::Random.AbstractRNG, objective::Objective{<:ModelWrapper{MyBaseModel}})
+    @unpack model, data = objective
+    @unpack μ, σ = model.val
+    return μ[1]
+end
+
+function ModelWrappers.predict(_rng::Random.AbstractRNG, objective::Objective{<:ModelWrapper{MyBaseModel}})
+    @unpack model, data = objective
+    @unpack μ, σ = model.val
+	return rand(_rng, Normal(μ, σ))
+end
