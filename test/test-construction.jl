@@ -96,7 +96,7 @@ for iter in eachindex(objectives)
                 GradientBackend = backend
             )
             ## MCMC kernels
-            for kernel in kernels[1:4] #gradientkernels if error during test
+            for kernel in gradientkernels #gradientkernels if error during test
                 ## Initialize kernel and check if it can be run
                 mcmckernel = MCMC(
                     _rng,
