@@ -66,9 +66,12 @@ for iter in eachindex(objectives)
                         BaytesMCMC.result!(mcmckernel, BaytesMCMC.get_result(mcmckernel))
                         generate_showvalues(_diag1)()
 
-                        ## Tuning settings - only need to check for one Backend
-                        for iter in Base.OneTo(mcmckernel.tune.phase.slices[end])
-                            propose(_rng, mcmckernel, _obj)
+                        ## Tuning settings
+                        #!NOTE: We do not need to check this for all backends as separate propose calls already evaluated and tune updates are independent of gradients
+                        if backend == backends[1]
+                            for iter in Base.OneTo(mcmckernel.tune.phase.slices[end])
+                                propose(_rng, mcmckernel, _obj)
+                            end
                         end
 
                         ## Check if MCMC also works with more/less data
