@@ -124,6 +124,15 @@ for iter in eachindex(objectives)
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
+
+                ## Tuning settings
+                #!NOTE: We do not need to check this for all backends as separate propose calls already evaluated and tune updates are independent of gradients
+                if backend == backends[1] && kernel == kernels[1]
+                    for iter in Base.OneTo(mcmckernel.tune.phase.slices[end]+10)
+                        #!NOTE: This only checks for stepsize adaption, which is fixed above
+                        propose(_rng, mcmckernel, _obj)
+                    end
+                end
             end
         end
     end
