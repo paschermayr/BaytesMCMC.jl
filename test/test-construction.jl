@@ -10,6 +10,7 @@ iter = 2
 backend = backends[1]
 matrixadaption = massmatrices[1]
 kernel = kernels[1]
+generated = generating[2]
 =#
 ############################################################################################
 ## Make model
