@@ -66,6 +66,11 @@ for iter in eachindex(objectives)
                         BaytesMCMC.result!(mcmckernel, BaytesMCMC.get_result(mcmckernel))
                         generate_showvalues(_diag1)()
 
+                        ## Tuning settings - only need to check for one Backend
+                        for iter in Base.OneTo(mcmckernel.tune.phase.slices[end])
+                            propose(_rng, mcmckernel, _obj)
+                        end
+
                         ## Check if MCMC also works with more/less data
                         propose!(_rng, mcmckernel, _obj.model, randn(_rng, length(data_uv)+10))
                         propose!(_rng, mcmckernel, _obj.model, randn(_rng, length(data_uv)-10))
@@ -79,7 +84,6 @@ end
 
 ############################################################################################
 #!NOTE: MH often does not reach stepsize in default number of steps - keep out in settings
-
 for iter in eachindex(objectives)
     _obj = objectives[iter]
     _flattentype = _obj.model.info.flattendefault.output

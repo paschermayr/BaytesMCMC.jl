@@ -68,6 +68,7 @@ function update!(
 end
 
 ############################################################################################
+#=
 """
 $(SIGNATURES)
 Some basic tuning output figures. Useful for debugging.
@@ -103,7 +104,7 @@ function printtune(tune::MCMCTune, diagparam::Integer=size(tune.proposal.chain, 
     println("Proposal covariance: ", tune.proposal.Σ.diag[1:diagparam])
     return nothing
 end
-
+=#
 ############################################################################################
 # Export
 export MCMCTune
