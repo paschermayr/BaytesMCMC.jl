@@ -35,6 +35,7 @@ for iter in eachindex(objectives)
                         MCMC(_rng, kernel, _obj, mcmcdefault, SampleDefault())
                         MCMC(kernel, keys(_obj.tagged.parameter))
                         ## Check if constructors work
+                        MCMCConstructor(kernel, keys(_obj.tagged.parameter)[begin], mcmcdefault)
                         constructor = MCMCConstructor(kernel, keys(_obj.tagged.parameter), mcmcdefault)
                         constructor(_rng, _obj.model, _obj.data, _flattentype(1.0), SampleDefault())
                         ## Initialize kernel and check if it can be run

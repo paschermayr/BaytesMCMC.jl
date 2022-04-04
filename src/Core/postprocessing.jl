@@ -18,7 +18,8 @@ struct MCMCConstructor{M,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefaul
     function MCMCConstructor(
         kernel::Type{M}, sym::S, default::D
     ) where {M<:MCMCKernel,S<:Union{Symbol,NTuple{k,Symbol} where k},D<:MCMCDefault}
-        return new{typeof(kernel),S,D}(kernel, sym, default)
+        tup = BaytesCore.to_Tuple(sym)
+        return new{typeof(kernel),typeof(tup),D}(kernel, tup, default)
     end
 end
 function (constructor::MCMCConstructor)(

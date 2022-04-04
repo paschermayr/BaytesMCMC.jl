@@ -20,7 +20,8 @@ using BaytesCore:
     logmeanexp,
     update,
     AcceptStatistic,
-    SampleDefault
+    SampleDefault,
+    to_Tuple
 
 import BaytesCore:
     BaytesCore,
@@ -36,7 +37,6 @@ import BaytesCore:
     propagate!,
     result!,
     get_result,
-#    get_ℓweight,
     generate_showvalues
 
 using ModelWrappers:
