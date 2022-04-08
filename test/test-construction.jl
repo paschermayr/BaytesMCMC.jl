@@ -15,7 +15,7 @@ generated = generating[2]
 ## Make model
 for iter in eachindex(objectives)
     _obj = objectives[iter]
-    _flattentype = _obj.model.info.flattendefault.output
+    _flattentype = _obj.model.info.reconstruct.default.output
     @testset "Kernel construction and propagation, all models" begin
         ## MCMC AD backends
         for backend in backends
@@ -89,7 +89,7 @@ end
 #!NOTE: MH often does not reach stepsize in default number of steps - keep out in settings
 for iter in eachindex(objectives)
     _obj = objectives[iter]
-    _flattentype = _obj.model.info.flattendefault.output
+    _flattentype = _obj.model.info.reconstruct.default.output
     @testset "Stepsize initial estimate, all models" begin
         for backend in backends
             mcmcdefault = MCMCDefault(;

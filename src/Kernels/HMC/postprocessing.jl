@@ -22,7 +22,7 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    return DiagnosticsHMC{model.info.flattendefault.output}
+    return DiagnosticsHMC{model.info.reconstruct.default.output}
 end
 ############################################################################################
 #export

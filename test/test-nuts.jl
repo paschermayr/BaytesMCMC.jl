@@ -8,7 +8,7 @@ Disclaimer: Many of the tests in this file taken from:
 ############################################################################################
 for iter in eachindex(objectives)
     _obj = objectives[iter]
-    _flattentype = _obj.model.info.flattendefault.output
+    _flattentype = _obj.model.info.reconstruct.default.output
     @testset "Kernel construction and propagation, all models" begin
         mcmcdefault = MCMCDefault(;
         stepsize = ConfigStepsize(;

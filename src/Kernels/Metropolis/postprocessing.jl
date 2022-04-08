@@ -10,7 +10,7 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    return DiagnosticsMetropolis{model.info.flattendefault.output}
+    return DiagnosticsMetropolis{model.info.reconstruct.default.output}
 end
 
 ################################################################################

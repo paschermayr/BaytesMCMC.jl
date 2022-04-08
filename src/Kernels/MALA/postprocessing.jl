@@ -15,7 +15,7 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    return DiagnosticsMALA{model.info.flattendefault.output}
+    return DiagnosticsMALA{model.info.reconstruct.default.output}
 end
 
 ############################################################################################

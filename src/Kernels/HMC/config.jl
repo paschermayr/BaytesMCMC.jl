@@ -89,7 +89,7 @@ function init(
         ),
     ## Kinetic energy in Hamiltonian
     energy=GaussianKineticEnergy(
-        init(objective.model.info.flattendefault.output, proposalconfig.metric, length(objective.tagged))...,
+        init(objective.model.info.reconstruct.default.output, proposalconfig.metric, length(objective.tagged))...,
     ),
     stepnumber = ConfigStepnumber()
 )

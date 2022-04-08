@@ -67,7 +67,7 @@ function MCMC(
     info::BaytesCore.SampleDefault = BaytesCore.SampleDefault()
 ) where {M<:MCMCKernel}
     ## Checks before algorithm is initiated
-    @unpack output = objective.model.info.flattendefault
+    @unpack output = objective.model.info.reconstruct.default
     @unpack GradientBackend, TunedModel, generated = default
     ## Sample from prior if TunedModel == false
     if !TunedModel
@@ -163,7 +163,7 @@ function propose!(
     mcmc::MCMC,
     model::ModelWrapper,
     data::D,
-    temperature::F = model.info.flattendefault.output(1.0),
+    temperature::F = model.info.reconstruct.default.output(1.0),
     update::U=BaytesCore.UpdateTrue(),
 ) where {D,F<:AbstractFloat, U<:BaytesCore.UpdateBool}
     ## Update Objective with new model parameter from other MCMC samplers and/or new/latent data

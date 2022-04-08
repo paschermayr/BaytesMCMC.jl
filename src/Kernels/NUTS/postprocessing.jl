@@ -17,7 +17,7 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    return DiagnosticsNUTS{model.info.flattendefault.output}
+    return DiagnosticsNUTS{model.info.reconstruct.default.output}
 end
 
 ############################################################################################
