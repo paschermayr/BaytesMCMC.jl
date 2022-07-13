@@ -7,7 +7,7 @@ Default arguments for MCMC constructor.
 # Fields
 $(TYPEDFIELDS)
 """
-struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, U<:BaytesCore.UpdateBool}
+struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, I, U<:BaytesCore.UpdateBool}
     "Individual keyword arguments for tuning different MCMC kernels."
     kernel::K
     "Stepsize default configuration for adaption."
@@ -16,8 +16,8 @@ struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, U<:Ba
     proposal::P
     "Gradient backend used in MCMC step. Not used if Metropolis sampler is chosen."
     GradientBackend::G
-    "Boolean if initial parameter are fixed or resampled."
-    TunedModel::Bool
+    "Method to obtain initial Modelparameter, see 'AbstractInitialization'."
+    init::I
     "Boolean if generate(_rng, objective) for corresponding model is stored in MCMC Diagnostics."
     generated::U
     function MCMCDefault(;
@@ -25,16 +25,16 @@ struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, U<:Ba
         stepsize = ConfigStepsize(),
         proposal = ConfigProposal(),
         GradientBackend=:ForwardDiff,
-        TunedModel=true,
+        init=ModelWrappers.NoInitialization(),
         generated=BaytesCore.UpdateFalse()
     )
         ArgCheck.@argcheck (
             isa(GradientBackend, Symbol) || isa(GradientBackend, AnalyticalDiffTune)
         ) "GradientBackend keywords has to be either an AD symbol (:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zyogte), or an AnalyticalDiffTune object."
         return new{
-            typeof(kernel), typeof(stepsize), typeof(proposal), typeof(GradientBackend), typeof(generated)
+            typeof(kernel), typeof(stepsize), typeof(proposal), typeof(GradientBackend), typeof(init), typeof(generated)
         }(
-            kernel, stepsize, proposal, GradientBackend, TunedModel, generated
+            kernel, stepsize, proposal, GradientBackend, init, generated
         )
     end
 end
@@ -68,11 +68,9 @@ function MCMC(
 ) where {M<:MCMCKernel}
     ## Checks before algorithm is initiated
     @unpack output = objective.model.info.reconstruct.default
-    @unpack GradientBackend, TunedModel, generated = default
-    ## Sample from prior if TunedModel == false
-    if !TunedModel
-        sample!(objective.model, objective.tagged)
-    end
+    @unpack GradientBackend, generated = default
+    ## Obtain initial parameter
+    default.init(kernel, objective)
     @unpack model, data, tagged = objective
     ## Initialize default configuration for chosen algorithm
     config = init(AbstractConfiguration, kernel, objective, default.proposal; default.kernel...)

@@ -55,7 +55,15 @@ using ModelWrappers:
     sample,
     sample!
 
-import ModelWrappers: ModelWrappers, predict, generate, checkfinite
+import ModelWrappers:
+    ModelWrappers,
+    predict,
+    generate,
+    checkfinite,
+    AbstractInitialization,
+    NoInitialization,
+    PriorInitialization,
+    OptimInitialization
 
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
 using LinearAlgebra:
@@ -98,6 +106,10 @@ export
     init!,
     predict,
     generate,
+    AbstractInitialization,
+    NoInitialization,
+    PriorInitialization,
+    OptimInitialization,
 
     #MCMC
     MCMCKernel,
