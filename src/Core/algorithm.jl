@@ -7,7 +7,7 @@ Default arguments for MCMC constructor.
 # Fields
 $(TYPEDFIELDS)
 """
-struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, I, U<:BaytesCore.UpdateBool}
+struct MCMCDefault{K<:NamedTuple, S<:ConfigStepsize, P<:ConfigProposal, G, I<:ModelWrappers.AbstractInitialization, U<:BaytesCore.UpdateBool}
     "Individual keyword arguments for tuning different MCMC kernels."
     kernel::K
     "Stepsize default configuration for adaption."
