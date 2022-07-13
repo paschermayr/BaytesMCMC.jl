@@ -40,7 +40,7 @@ struct TrajectoryCustom{P,F<:ModelWrappers.ℓObjectiveResult, T<:Real}
     ϵ::T
     function TrajectoryCustom(
         proposal::P, result₀::F, ϵ::T
-    ) where {P,F<:ModelWrappers.ℓObjectiveResult}
+    ) where {P,F<:ModelWrappers.ℓObjectiveResult, T<:Real}
         return new{P,F,T}(proposal, result₀, ϵ)
     end
 end
