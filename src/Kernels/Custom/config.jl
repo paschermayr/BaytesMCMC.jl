@@ -5,7 +5,7 @@ struct ConfigCustom{F} <: AbstractConfiguration
     δ::Float64
     "Default size for tuning iterations in each cycle - ignored for custom sampler."
     window::ConfigTuningWindow
-    "A function of a parameter vector θ that returns a valid Distribution to sample and evaluate from"
+    "A function/functor of a parameter vector θ that returns a valid Distribution to sample and evaluate from"
     proposal::F
     function ConfigCustom(
         δ::Float64,
@@ -36,24 +36,24 @@ struct MyMixture{W, F, T}
     Σ1::F
     Σ2::T
 end
-function (mixture::MyMixture)(θ)
+function (mixture::MyMixture)(θ, ϵ)
     @unpack weights, Σ1, Σ2 = mixture
-    return MixtureModel([MvNormal(θ, Σ1), MvNormal(θ, Σ2)], weights)
+    return MixtureModel([MvNormal(θ, ϵ .* Σ1), MvNormal(θ, ϵ .* Σ2)], weights)
 end
 
-#Independence sampler via callable struct without extra allocation
+#Independence sampler via callable struct without extra allocation and no dependency on stepsize
 struct MyIndependenceSampler{W}
     dist::W
 end
-function (sampler::MyIndependenceSampler)(θ)
+function (sampler::MyIndependenceSampler)(θ, ϵ)
     return sampler.dist
 end
 ```
 
 """
-function customdefaultkernel(θ::AbstractVector{T}) where {T<:Real}
+function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
     Nparams = length(θ)
-    return MvNormal(θ, T(1/Nparams^2) * LinearAlgebra.I(Nparams))
+    return MvNormal(θ, ϵ .* T(1/Nparams^2) .* LinearAlgebra.I(Nparams))
 end
 
 """

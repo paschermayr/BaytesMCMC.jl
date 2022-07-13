@@ -136,7 +136,8 @@ function leapfrog(
     H::Hamiltonian{<:EuclideanKineticEnergy}, phasepoint::PhasePoint, ϵ::T
 ) where {T<:Real}
     @unpack result, ρ = phasepoint
-    @argcheck isfinite(result.ℓθᵤ) "Internal error: leapfrog called from non-finite log density"
+#    @argcheck isfinite(result.ℓθᵤ) "Internal error: leapfrog called from non-finite log density"
+    ModelWrappers.checkfinite(H.objective.objective, result)
     ρ⁰ = ρ + ϵ / 2 * result.∇ℓθᵤ
     θᵤᵖ = result.θᵤ + ϵ * ∇K(H.K, ρ⁰)
     resultᵖ = ModelWrappers.log_density_and_gradient(H.objective, θᵤᵖ)
