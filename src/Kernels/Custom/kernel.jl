@@ -75,7 +75,7 @@ function propagate(
     if divergent
         return resultᵖ,
         divergent, BaytesCore.AcceptStatistic(zero(eltype(resultᵖ.θᵤ)), false),
-        DiagnosticsCustom()
+        DiagnosticsCustom(ϵ)
     end
     ## Calculate Proposal density and acceptance rate ~ not needed for symmetric proposals
     ℓqᵤ = logpdf(kernel.proposal(resultᵖ.θᵤ, ϵ), result.θᵤ)
