@@ -18,8 +18,13 @@ end
 function Custom(sym::S; kwargs...) where {S<:Union{Symbol,NTuple{k,Symbol} where k}}
     return MCMC(Custom, sym; kwargs...)
 end
-#!NOTE: There is no need to update kernel for custom sampler, as logdensity will always be evaluated at current and proposed step for MCMC correction (no cached results)
-function update!(kernel::Custom, objective::Objective, up::U) where {U<:UpdateBool}
+
+function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateTrue)
+    ## Update log-target result with current (latent) data
+    kernel.result = ModelWrappers.ℓDensityResult(objective)
+    return nothing
+end
+function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateFalse)
     return nothing
 end
 
@@ -77,7 +82,7 @@ function propagate(
     ℓqᵤᵖ = logpdf(kernel.proposal(result.θᵤ, ϵ), resultᵖ.θᵤ)
     ## Pack and return output
     accept_statistic = BaytesCore.AcceptStatistic(_rng, (resultᵖ.ℓθᵤ - result.ℓθᵤ) + (ℓqᵤ - ℓqᵤᵖ))
-    return resultᵖ, divergent, accept_statistic, DiagnosticsCustom()
+    return resultᵖ, divergent, accept_statistic, DiagnosticsCustom(ϵ)
 end
 
 function get_acceptrate(

@@ -53,7 +53,7 @@ end
 """
 function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
     Nparams = length(θ)
-    return MvNormal(θ, ϵ .* T(1/Nparams^2) .* LinearAlgebra.I(Nparams))
+    return MvNormal(θ, T(ϵ) * T(1/Nparams^2) * LinearAlgebra.I(Nparams))
 end
 
 """

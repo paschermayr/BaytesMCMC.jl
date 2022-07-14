@@ -10,7 +10,7 @@ function infer(
     model::ModelWrapper,
     data::D,
 ) where {D}
-    return DiagnosticsCustom
+    return DiagnosticsCustom{model.info.reconstruct.default.output}
 end
 
 ################################################################################
