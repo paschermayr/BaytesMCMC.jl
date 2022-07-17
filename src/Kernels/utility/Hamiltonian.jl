@@ -75,7 +75,7 @@ $(TYPEDFIELDS)
 struct Hamiltonian{E<:KineticEnergy,D<:DiffObjective}
     "The kinetic energy specification."
     K::E
-    "Differentiable log target density of model, see ModelWrappers."
+    "Differentiable log target density of model, see BaytesDiff."
     objective::D
     function Hamiltonian(K::E, objective::D) where {E<:KineticEnergy,D<:DiffObjective}
         return new{E,D}(K, objective)
@@ -85,13 +85,13 @@ end
 ############################################################################################
 """
 $(TYPEDEF)
-A point in phase space, consists of a position ModelWrappers.ℓObjectiveResult and a momentum ρ.
+A point in phase space, consists of a position BaytesDiff.ℓObjectiveResult and a momentum ρ.
 
 # Fields
 $(TYPEDFIELDS)
 """
 struct PhasePoint{T<:ℓObjectiveResult,S<:Real}
-    "ModelWrappers.ℓObjectiveResult container"
+    "BaytesDiff.ℓObjectiveResult container"
     result::T
     "Momentum"
     ρ::Vector{S}
@@ -137,10 +137,10 @@ function leapfrog(
 ) where {T<:Real}
     @unpack result, ρ = phasepoint
 #    @argcheck isfinite(result.ℓθᵤ) "Internal error: leapfrog called from non-finite log density"
-    ModelWrappers.checkfinite(H.objective.objective, result)
+    BaytesDiff.checkfinite(H.objective.objective, result)
     ρ⁰ = ρ + ϵ / 2 * result.∇ℓθᵤ
     θᵤᵖ = result.θᵤ + ϵ * ∇K(H.K, ρ⁰)
-    resultᵖ = ModelWrappers.log_density_and_gradient(H.objective, θᵤᵖ)
+    resultᵖ = BaytesDiff.log_density_and_gradient(H.objective, θᵤᵖ)
     ρᵖ = ρ⁰ + ϵ / 2 * resultᵖ.∇ℓθᵤ
     return PhasePoint(resultᵖ, ρᵖ)
 end

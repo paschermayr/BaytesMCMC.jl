@@ -6,7 +6,7 @@ function init(
     difftune::AbstractDifferentiableTune,
 )
     return HMC(
-        ModelWrappers.log_density_and_gradient(objective, difftune),
+        BaytesDiff.log_density_and_gradient(objective, difftune),
         difftune,
         config.energy,
         StepNumberTune(

@@ -27,7 +27,7 @@ end
 function update!(kernel::NUTS, objective::Objective, up::BaytesCore.UpdateTrue)
     ## Update log-target result with current (latent) data
     kernel.diff = update(kernel.diff, objective)
-    kernel.result = ModelWrappers.log_density_and_gradient(objective, kernel.diff)
+    kernel.result = BaytesDiff.log_density_and_gradient(objective, kernel.diff)
     return nothing
 end
 function update!(kernel::NUTS, objective::Objective, up::BaytesCore.UpdateFalse)

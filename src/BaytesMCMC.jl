@@ -44,14 +44,6 @@ using ModelWrappers:
     ModelWrapper,
     Tagged,
     Objective,
-    DiffObjective,
-    AbstractDifferentiableTune,
-    ℓObjectiveResult,
-    ℓDensityResult,
-    ℓGradientResult,
-    checkfinite,
-    AutomaticDiffTune,
-    AnalyticalDiffTune,
     sample,
     sample!
 
@@ -59,11 +51,25 @@ import ModelWrappers:
     ModelWrappers,
     predict,
     generate,
-    checkfinite,
     AbstractInitialization,
     NoInitialization,
     PriorInitialization,
     OptimInitialization
+
+using BaytesDiff:
+    BaytesDiff,
+    DiffObjective,
+    AbstractDifferentiableTune,
+    ℓObjectiveResult,
+    ℓDensityResult,
+    ℓGradientResult,
+    checkfinite,
+    AutomaticDiffTune,
+    AnalyticalDiffTune
+
+import BaytesDiff:
+    BaytesDiff,
+    checkfinite
 
 using Random: Random, AbstractRNG, GLOBAL_RNG, randexp
 using LinearAlgebra:
@@ -101,7 +107,6 @@ export
     SampleDefault,
 
     # ModelWrappers
-    checkfinite,
     init,
     init!,
     predict,
@@ -110,6 +115,9 @@ export
     NoInitialization,
     PriorInitialization,
     OptimInitialization,
+
+    #BaytesDiff
+    checkfinite,
 
     #MCMC
     MCMCKernel,

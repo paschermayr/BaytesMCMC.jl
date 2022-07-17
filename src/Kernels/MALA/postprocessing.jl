@@ -5,7 +5,7 @@ function init(
     objective::Objective,
     difftune::AbstractDifferentiableTune,
 )
-    return MALA(ModelWrappers.log_density_and_gradient(objective, difftune), difftune)
+    return MALA(BaytesDiff.log_density_and_gradient(objective, difftune), difftune)
 end
 
 function infer(

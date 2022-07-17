@@ -19,7 +19,7 @@ end
 
 function update!(kernel::Metropolis, objective::Objective, up::BaytesCore.UpdateTrue)
     ## Update log-target result with current (latent) data
-    kernel.result = ModelWrappers.ℓDensityResult(objective)
+    kernel.result = BaytesDiff.ℓDensityResult(objective)
     return nothing
 end
 function update!(kernel::Metropolis, objective::Objective, up::BaytesCore.UpdateFalse)
@@ -34,17 +34,17 @@ Representation of a trajectory.
 $(TYPEDFIELDS)
 """
 struct TrajectoryMetropolis{
-    S<:AbstractMatrix,F<:ModelWrappers.ℓObjectiveResult,T<:AbstractFloat
+    S<:AbstractMatrix,F<:BaytesDiff.ℓObjectiveResult,T<:AbstractFloat
 }
     "Proposal Covariance"
     Σ::S
-    "Log Target result at initial point, see ModelWrappersesTools."
+    "Log Target result at initial point, see BaytesDiffesTools."
     result₀::F
     "Discretization size"
     ϵ::T
     function TrajectoryMetropolis(
         Σ::S, result₀::F, ϵ::T
-    ) where {S<:AbstractMatrix,F<:ModelWrappers.ℓObjectiveResult,T<:AbstractFloat}
+    ) where {S<:AbstractMatrix,F<:BaytesDiff.ℓObjectiveResult,T<:AbstractFloat}
         return new{S,F,T}(Σ, result₀, ϵ)
     end
 end
@@ -55,7 +55,7 @@ function move(_rng::Random.AbstractRNG, trajectory::T) where {T<:TrajectoryMetro
 end
 
 function checkfinite(
-    trajectory::TrajectoryMetropolis, result::ModelWrappers.ℓObjectiveResult
+    trajectory::TrajectoryMetropolis, result::BaytesDiff.ℓObjectiveResult
 )
     return checkfinite(trajectory.result₀.ℓθᵤ, result.ℓθᵤ, result)
 end
@@ -71,7 +71,7 @@ function propagate(
     ## Create new trajectory
     trajectory = TrajectoryMetropolis(Σ, kernel.result, ϵ)
     ## Make Proposal step
-    resultᵖ = ModelWrappers.log_density(objective, move(_rng, trajectory))
+    resultᵖ = BaytesDiff.log_density(objective, move(_rng, trajectory))
     ## Check if proposal diverges
     divergent = !checkfinite(result, resultᵖ)
     if divergent
@@ -96,7 +96,7 @@ function get_acceptrate(
     return function acceptrate(ϵ::T) where {T<:Real}
         trajectory = TrajectoryMetropolis(Σ, result, ϵ)
         ## Make Proposal step
-        resultᵖ = ModelWrappers.log_density(objective, move(_rng, trajectory))
+        resultᵖ = BaytesDiff.log_density(objective, move(_rng, trajectory))
         #ℓqᵤ = logpdf(MvNormal(resultᵖ.θᵤ, ϵ * Σ), result.θᵤ)
         #ℓqᵤᵖ = logpdf(MvNormal(result.θᵤ, ϵ * Σ), resultᵖ.θᵤ)
         ## Return acceptance rate

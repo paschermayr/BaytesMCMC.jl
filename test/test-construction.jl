@@ -1,8 +1,8 @@
 ############################################################################################
 # Models to be used in construction
 objectives = [
-    Objective(ModelWrapper(MyBaseModel(), myparameter, FlattenDefault()), data_uv),
-    Objective(ModelWrapper(MyBaseModel(), myparameter, FlattenDefault(; output = Float32)), data_uv)
+    Objective(ModelWrapper(MyBaseModel(), myparameter, (;), FlattenDefault()), data_uv),
+    Objective(ModelWrapper(MyBaseModel(), myparameter, (;), FlattenDefault(; output = Float32)), data_uv)
 ]
 #=
 iter = 2

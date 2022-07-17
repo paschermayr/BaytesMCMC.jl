@@ -24,7 +24,7 @@ end
 function update!(kernel::MALA, objective::Objective, up::BaytesCore.UpdateTrue)
     ## Update log-target result with current (latent) data
     kernel.diff = update(kernel.diff, objective)
-    kernel.result = ModelWrappers.log_density_and_gradient(objective, kernel.diff)
+    kernel.result = BaytesDiff.log_density_and_gradient(objective, kernel.diff)
     return nothing
 end
 function update!(kernel::MALA, objective::Objective, up::BaytesCore.UpdateFalse)
@@ -39,16 +39,16 @@ Representation of a trajectory.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TrajectoryMALA{S<:AbstractMatrix,F<:ModelWrappers.ℓObjectiveResult,T<:AbstractFloat}
+struct TrajectoryMALA{S<:AbstractMatrix,F<:BaytesDiff.ℓObjectiveResult,T<:AbstractFloat}
     "Proposal Covariance"
     Σ::S
-    "Log Target result at initial point, see ModelWrappers."
+    "Log Target result at initial point, see BaytesDiff."
     result₀::F
     "Discretization size"
     ϵ::T
     function TrajectoryMALA(
         Σ::S, result₀::F, ϵ::T
-    ) where {S<:AbstractMatrix,F<:ModelWrappers.ℓObjectiveResult,T<:AbstractFloat}
+    ) where {S<:AbstractMatrix,F<:BaytesDiff.ℓObjectiveResult,T<:AbstractFloat}
         return new{S,F,T}(Σ, result₀, ϵ)
     end
 end
@@ -62,7 +62,7 @@ function move(_rng::Random.AbstractRNG, trajectory::T) where {T<:TrajectoryMALA}
            randn(_rng, eltype(result₀.θᵤ), size(result₀.θᵤ, 1))
 end
 
-function checkfinite(trajectory::TrajectoryMALA, result::ModelWrappers.ℓObjectiveResult)
+function checkfinite(trajectory::TrajectoryMALA, result::BaytesDiff.ℓObjectiveResult)
     return checkfinite(trajectory.result₀.ℓθᵤ, result.ℓθᵤ, result)
 end
 
@@ -85,7 +85,7 @@ function propagate(
     ## Create new trajectory
     trajectory = TrajectoryMALA(Σ, kernel.result, ϵ)
     ## Make Proposal step
-    resultᵖ = ModelWrappers.log_density_and_gradient(
+    resultᵖ = BaytesDiff.log_density_and_gradient(
         objective, kernel.diff, move(_rng, trajectory)
     )
     ## Check if proposal diverges
@@ -113,7 +113,7 @@ function get_acceptrate(
     return function acceptrate(ϵ::T) where {T<:Real}
         trajectory = TrajectoryMALA(Σ, result, ϵ)
         ## Make Proposal step
-        resultᵖ = ModelWrappers.log_density_and_gradient(
+        resultᵖ = BaytesDiff.log_density_and_gradient(
             objective, kernel.diff, move(_rng, trajectory)
         )
         ## Calculate proposal density and acceptance rate

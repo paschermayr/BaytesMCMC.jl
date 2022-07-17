@@ -21,7 +21,7 @@ end
 
 function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateTrue)
     ## Update log-target result with current (latent) data
-    kernel.result = ModelWrappers.ℓDensityResult(objective)
+    kernel.result = BaytesDiff.ℓDensityResult(objective)
     return nothing
 end
 function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateFalse)
@@ -36,16 +36,16 @@ Representation of a trajectory.
 # Fields
 $(TYPEDFIELDS)
 """
-struct TrajectoryCustom{P,F<:ModelWrappers.ℓObjectiveResult, T<:Real}
+struct TrajectoryCustom{P,F<:BaytesDiff.ℓObjectiveResult, T<:Real}
     "Proposal distribution"
     proposal::P
-    "Log Target result at initial point, see ModelWrappersesTools."
+    "Log Target result at initial point, see BaytesDiff."
     result₀::F
     "Discretization size"
     ϵ::T
     function TrajectoryCustom(
         proposal::P, result₀::F, ϵ::T
-    ) where {P,F<:ModelWrappers.ℓObjectiveResult, T<:Real}
+    ) where {P,F<:BaytesDiff.ℓObjectiveResult, T<:Real}
         return new{P,F,T}(proposal, result₀, ϵ)
     end
 end
@@ -55,7 +55,7 @@ function move(_rng::Random.AbstractRNG, trajectory::T) where {T<:TrajectoryCusto
     return rand(_rng, proposal(result₀.θᵤ, ϵ))
 end
 
-function checkfinite(trajectory::TrajectoryCustom, result::ModelWrappers.ℓObjectiveResult)
+function checkfinite(trajectory::TrajectoryCustom, result::BaytesDiff.ℓObjectiveResult)
     return checkfinite(trajectory.result₀.ℓθᵤ, result.ℓθᵤ, result)
 end
 
@@ -69,7 +69,7 @@ function propagate(
     ## Create new trajectory
     trajectory = TrajectoryCustom(kernel.proposal, kernel.result, ϵ)
     ## Make Proposal step
-    resultᵖ = ModelWrappers.log_density(objective, move(_rng, trajectory))
+    resultᵖ = BaytesDiff.log_density(objective, move(_rng, trajectory))
     ## Check if proposal diverges
     divergent = !checkfinite(result, resultᵖ)
     if divergent
@@ -94,7 +94,7 @@ function get_acceptrate(
     return function acceptrate(ϵ::T) where {T<:Real}
         trajectory = TrajectoryCustom(kernel.proposal, kernel.result, ϵ)
         ## Make Proposal step
-        resultᵖ = ModelWrappers.log_density(objective, move(_rng, trajectory))
+        resultᵖ = BaytesDiff.log_density(objective, move(_rng, trajectory))
         ℓqᵤ = logpdf(kernel.proposal(resultᵖ.θᵤ, ϵ), result.θᵤ)
         ℓqᵤᵖ = logpdf(kernel.proposal(result.θᵤ, ϵ), resultᵖ.θᵤ)
         ## Return acceptance rate

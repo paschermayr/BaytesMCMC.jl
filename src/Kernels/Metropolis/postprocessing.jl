@@ -1,6 +1,6 @@
 ################################################################################
 function init(::Type{Metropolis}, config::ConfigMetropolis, objective::Objective, difftune)
-    return Metropolis(ModelWrappers.ℓDensityResult(objective))
+    return Metropolis(BaytesDiff.ℓDensityResult(objective))
 end
 
 function infer(
