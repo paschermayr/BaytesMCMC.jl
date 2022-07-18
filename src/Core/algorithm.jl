@@ -70,7 +70,7 @@ function MCMC(
     @unpack output = objective.model.info.reconstruct.default
     @unpack GradientBackend, generated = default
     ## Obtain initial parameter
-    default.init(kernel, objective)
+    default.init(_rng, kernel, objective)
     @unpack model, data, tagged = objective
     ## Initialize default configuration for chosen algorithm
     config = init(AbstractConfiguration, kernel, objective, default.proposal; default.kernel...)
