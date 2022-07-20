@@ -1,6 +1,6 @@
 ################################################################################
 function init(::Type{Custom}, config::ConfigCustom, objective::Objective, difftune)
-    return Custom(BaytesDiff.ℓDensityResult(objective), config.proposal)
+    return Custom(BaytesDiff.ℓDensityResult(objective), config.proposal())
 end
 
 function infer(

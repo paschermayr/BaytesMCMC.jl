@@ -24,36 +24,46 @@ end
 ############################################################################################
 """
 $(SIGNATURES)
-A placeholder function to configure a custom proposal distribution.
-Can also be a closure that captures, i.e., Σ., or a a callable struct:
+A callable without arguments to initiate a proposal distribution for a Custom sampler.
+Can be a closure that captures, i.e., Σ., or a a callable struct:
 
 # Examples
 ```julia
 
-#Mixture via callable struct
-struct MyMixture{W, F, T}
-    weights::W
-    Σ1::F
-    Σ2::T
-end
-function (mixture::MyMixture)(θ, ϵ)
-    @unpack weights, Σ1, Σ2 = mixture
-    return MixtureModel([MvNormal(θ, ϵ .* Σ1), MvNormal(θ, ϵ .* Σ2)], weights)
+#1 Method via function
+function customconstructor()
+    function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
+        Nparams = length(θ)
+        return MvNormal(θ, T(ϵ) * T(1/Nparams^2) * LinearAlgebra.I(Nparams))
+    end
+    return customdefaultkernel
 end
 
-#Independence sampler via callable struct without extra allocation and no dependency on stepsize
-struct MyIndependenceSampler{W}
-    dist::W
+#2 Method fia callable object in case additional parameter have to be provided. Make sure this is threadsafe in case multiple chains are sampled.
+struct _Custom{A,B}
+    a::A
+    b::B
 end
-function (sampler::MyIndependenceSampler)(θ, ϵ)
-    return sampler.dist
+_custom = _Custom(randn(10), I(10))
+function (custom::_Custom)()
+    @unpack a,b = custom
+    μ = deepcopy(a)
+    Σ = deepcopy(b)
+    dist = MvNormal(μ, Σ)
+    function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
+        return dist
+    end
+    return customdefaultkernel
 end
 ```
 
 """
-function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
-    Nparams = length(θ)
-    return MvNormal(θ, T(ϵ) * T(1/Nparams^2) * LinearAlgebra.I(Nparams))
+function customconstructor()
+    function customdefaultkernel(θ::AbstractVector{T}, ϵ::S) where {S<:Real, T<:Real}
+        Nparams = length(θ)
+        return MvNormal(θ, T(ϵ) * T(1/Nparams^2) * LinearAlgebra.I(Nparams))
+    end
+    return customdefaultkernel
 end
 
 """
@@ -79,7 +89,7 @@ function init(
         [Warmup(), Adaptionˢˡᵒʷ(), Adaptionᶠᵃˢᵗ(), Exploration()],
         ),
     ## Custom distribution
-    proposal = customdefaultkernel
+    proposal = customconstructor
 )
     return ConfigCustom(
         δ,
