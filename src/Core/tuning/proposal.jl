@@ -27,37 +27,61 @@ Default configuration for posterior Covariance Matrix adaption.
 # Fields
 $(TYPEDFIELDS)
 """
-struct ConfigProposal{A<:BaytesCore.UpdateBool, M<:MatrixMetric}
+struct ConfigProposal{A<:BaytesCore.UpdateBool, M<:MatrixMetric, F}
     "Boolean if Posterior covariance for proposal steps is adapted."
     proposaladaption::A
     "Covariance estimate metric: MDense(), MDiagonal(), MUnit()"
     metric::M
     "Shrinkage parameter towards Diagonal Matrix with equal variance"
     shrinkage::Float64
+    "Initial covariance matrix for proposal distribution. Kept throughout sampling if 'proposaladaption' is set to UpdateFalse. By default not initiated."
+    covariance::F
     function ConfigProposal(;
         proposaladaption = BaytesCore.UpdateTrue(),
         metric = MDiagonal(),
-        shrinkage = 0.05
-        )
-        @argcheck 0.0 <= shrinkage <= 1.0 "Shrinkage not bounded between 0 and 1"
-        return new{typeof(proposaladaption), typeof(metric)}(
-            proposaladaption, metric, shrinkage
+        shrinkage = 0.05,
+        covariance::T = nothing
+        ) where {T}
+        ArgCheck.@argcheck 0.0 <= shrinkage <= 1.0 "Shrinkage not bounded between 0 and 1"
+
+        #Check if suitable custom covariance matrix is provided
+        if covariance != nothing
+            if isa(metric, MDense)
+                ArgCheck.@argcheck isa(covariance, AbstractMatrix)
+            elseif isa(metric, MDiagonal) || isa(metric, MUnit)
+                ArgCheck.@argcheck isa(covariance, LinearAlgebra.Diagonal)
+            end
+        end
+
+        return new{typeof(proposaladaption), typeof(metric), T}(
+            proposaladaption, metric, shrinkage, covariance
             )
     end
 end
 
 ############################################################################################
 #Wrapper to generate Covariance buffers
-function init(type::Type{T}, metric::MDense, param_length::Int64) where {T<:Real}
+function init(type::Type{T}, metric::MDense, param_length::Int64, covariance::Nothing) where {T<:Real}
     Σ = LinearAlgebra.Symmetric(zeros(T, param_length, param_length) + LinearAlgebra.I)
     Σ⁻¹ᶜʰᵒˡ = LinearAlgebra.cholesky(LinearAlgebra.inv(Σ)).L
     return Σ, Σ⁻¹ᶜʰᵒˡ
 end
 function init(
-    type::Type{T}, metric::M, param_length::Int64
+    type::Type{T}, metric::M, param_length::Int64, covariance::Nothing
 ) where {T<:Real,M<:Union{MDiagonal,MUnit}}
     Σ = LinearAlgebra.Diagonal(fill(T(1.0), param_length))
     Σ⁻¹ᶜʰᵒˡ = Diagonal(.√LinearAlgebra.inv.(LinearAlgebra.diag(Σ)))
+    return Σ, Σ⁻¹ᶜʰᵒˡ
+end
+function init(
+    type::Type{T}, metric, param_length::Int64, covariance::C
+) where {T<:Real, C<:AbstractMatrix}
+    #check for size and type matching model
+    ArgCheck.@argcheck size(covariance, 1) == param_length
+    ArgCheck.@argcheck eltype(covariance) == type "Model.info.output type does not match custom covariance matrix."
+    #!NOTE: Deepcopy custom covariance so even custom kernel is threadsafe
+    Σ = deepcopy(covariance)
+    Σ⁻¹ᶜʰᵒˡ = LinearAlgebra.cholesky(LinearAlgebra.inv(Σ)).L
     return Σ, Σ⁻¹ᶜʰᵒˡ
 end
 
@@ -117,9 +141,9 @@ mutable struct Proposal{
     "Tuning parameter for Σ estimation"
     matrixtune::M
     function Proposal(
-        type::Type{T}, adaption::A, tune::M, param_length::Int64, warmup_length::Int64
-    ) where {T<:AbstractFloat,A<:BaytesCore.UpdateBool,M<:MatrixTune}
-        Σ, Σ⁻¹ᶜʰᵒˡ = init(T, tune.metric, param_length)
+        type::Type{T}, adaption::A, tune::M, param_length::Int64, warmup_length::Int64, covariance::C
+    ) where {T<:AbstractFloat,A<:BaytesCore.UpdateBool,M<:MatrixTune,C}
+        Σ, Σ⁻¹ᶜʰᵒˡ = init(T, tune.metric, param_length, covariance)
         chain = zeros(T, param_length, warmup_length)
         return new{typeof(adaption),eltype(chain),typeof(Σ),typeof(Σ⁻¹ᶜʰᵒˡ),M}(
             adaption, chain, Σ, Σ⁻¹ᶜʰᵒˡ, tune

@@ -91,6 +91,7 @@ function MCMC(
         MatrixTune(default.proposal.metric, default.proposal.shrinkage),
         length(objective.tagged),
         phasetune.iterations[phasetune.counter.current],
+        default.proposal.covariance
     )
     ## Tune stepsize in case it is not assigned via local acceptance rate bisection
     if default.stepsize.initialstepsize isa BaytesCore.UpdateTrue
