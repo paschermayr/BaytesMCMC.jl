@@ -162,9 +162,12 @@ function propose!(
     mcmc::MCMC,
     model::ModelWrapper,
     data::D,
-    temperature::F = model.info.reconstruct.default.output(1.0),
-    update::U=BaytesCore.UpdateTrue(),
-) where {D,F<:AbstractFloat, U<:BaytesCore.UpdateBool}
+    proposaltune::T = BaytesCore.ProposalTune(model.info.reconstruct.default.output(1.0))
+#    temperature::F = model.info.reconstruct.default.output(1.0),
+#    update::U=BaytesCore.UpdateTrue(),
+) where {D, T<:ProposalTune}
+    ## Update Proposal tuning information that is shared among algorithms
+    @unpack temperature, update = proposaltune
     ## Update Objective with new model parameter from other MCMC samplers and/or new/latent data
     objective = Objective(model, data, mcmc.tune.tagged, temperature)
     update!(mcmc.kernel, objective, update) #Update Kernel with current objective/configs

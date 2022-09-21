@@ -21,7 +21,8 @@ using BaytesCore:
     update,
     AcceptStatistic,
     SampleDefault,
-    to_Tuple
+    to_Tuple,
+    ProposalTune
 
 import BaytesCore:
     BaytesCore,

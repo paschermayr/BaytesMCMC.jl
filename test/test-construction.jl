@@ -113,13 +113,15 @@ for iter in eachindex(objectives)
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
                 ## Stepsize Adaption
-                _val2, _diag2 = propose!(_rng, mcmckernel, _obj.model, _obj.data, _obj.temperature, UpdateTrue())
+                proposaltune = BaytesCore.ProposalTune(_obj.temperature, BaytesCore.UpdateTrue(), BaytesCore.DataTune(BaytesCore.Batch(), nothing, nothing) )
+                _val2, _diag2 = propose!(_rng, mcmckernel, _obj.model, _obj.data, proposaltune)
                 @test mcmckernel.tune.stepsize.ϵ isa _flattentype
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
                 ## Stepsize Adaption
-                _val3, _diag3 = propose!(_rng, mcmckernel, _obj.model, _obj.data, _obj.temperature, UpdateFalse())
+                proposaltune = BaytesCore.ProposalTune(_obj.temperature, BaytesCore.UpdateFalse(), BaytesCore.DataTune(BaytesCore.Batch(), nothing, nothing) )
+                _val3, _diag3 = propose!(_rng, mcmckernel, _obj.model, _obj.data, proposaltune)
                 @test mcmckernel.tune.stepsize.ϵ isa _flattentype
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
