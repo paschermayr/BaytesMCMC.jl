@@ -47,7 +47,6 @@ for iter in eachindex(objectives)
                         )
                         _val1, _diag1 = propose(_rng, mcmckernel, _obj)
                         _val2, _diag2 = propose!(_rng, mcmckernel, _obj.model, _obj.data)
-
                         ## Test if Float types for proposal calculation all have same type after proposal step
                         # !NOTE kernel.result structs are already checked in ModelWrappers
                         @test mcmckernel.tune.stepsize.ϵ isa _flattentype
@@ -59,7 +58,9 @@ for iter in eachindex(objectives)
                         @test _diag1 isa infer(_rng, AbstractDiagnostics, mcmckernel, _obj.model, _obj.data)
                         @test _diag2 isa infer(_rng, AbstractDiagnostics, mcmckernel, _obj.model, _obj.data)
                         @test _diag1.base.prediction isa infer(_rng, mcmckernel, _obj.model, _obj.data)
-                        @test _diag1.generated isa BaytesMCMC.infer_generated(_rng, mcmckernel, _obj.model, _obj.data)
+                        generated_model, generated_algorithm = BaytesMCMC.infer_generated(_rng, mcmckernel, _obj.model, _obj.data)
+                        @test _diag1.generated isa generated_model
+                        @test _diag1.generated_algorithm isa generated_algorithm
                         results([_diag1, _diag2], mcmckernel, 2, [.1, .2, .5, .8, .9])
                         divs = BaytesMCMC.print_divergences([_diag1, _diag2], mcmckernel.tune.phase);
                         @test length(divs[1]) == length(divs[2])

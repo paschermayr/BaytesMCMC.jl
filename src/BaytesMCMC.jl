@@ -38,7 +38,8 @@ import BaytesCore:
     propagate!,
     result!,
     get_result,
-    generate_showvalues
+    generate_showvalues,
+    generate
 
 using ModelWrappers:
     ModelWrappers,

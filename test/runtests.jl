@@ -8,7 +8,7 @@ using Distributions
 ############################################################################################
 # Import Baytes Packages
 using BaytesCore, ModelWrappers, BaytesMCMC
-
+#using .BaytesMCMC
 ############################################################################################
 # Include Files
 include("TestHelper.jl")

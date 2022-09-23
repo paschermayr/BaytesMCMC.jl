@@ -10,7 +10,8 @@ $(TYPEDFIELDS)
 struct MCMCDiagnostics{
     P,
     K<:MCMCKernelDiagnostics,
-    G
+    G,
+    A
 } <: AbstractDiagnostics
     "Diagnostics used for all Baytes kernels"
     base::BaytesCore.BaseDiagnostics{P}
@@ -22,15 +23,18 @@ struct MCMCDiagnostics{
     accept::AcceptStatistic
     "Generated quantities specified for objective"
     generated::G
+    "Generated quantities specified for algorithm"
+    generated_algorithm::A
     function MCMCDiagnostics(
         base::BaytesCore.BaseDiagnostics{P},
         kerneldiagnostics::K,
         divergence::Bool,
         accept::AcceptStatistic,
         generated::G,
-    ) where {P,K<:MCMCKernelDiagnostics,G}
-        return new{P,K,G}(
-            base, kerneldiagnostics, divergence, accept, generated
+        generated_algorithm::A
+    ) where {P, K<:MCMCKernelDiagnostics, G, A}
+        return new{P,K,G,A}(
+            base, kerneldiagnostics, divergence, accept, generated, generated_algorithm
         )
     end
 end
@@ -45,6 +49,8 @@ function generate_showvalues(diagnostics::D) where {D<:MCMCDiagnostics}
         (:Temperature, diagnostics.base.temperature),
         (:accepted, diagnostics.accept.accepted),
         (:acceptancerate, diagnostics.accept.rate),
+        (:generated, diagnostics.generated),
+        (:generated_algorithm, diagnostics.generated_algorithm),
         kernel()...
     end
 end

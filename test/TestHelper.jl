@@ -45,6 +45,12 @@ function ModelWrappers.generate(_rng::Random.AbstractRNG, objective::Objective{<
     return μ[1]
 end
 
+function ModelWrappers.generate(_rng::Random.AbstractRNG, algorithm::MCMC, objective::Objective{<:ModelWrapper{MyBaseModel}})
+    @unpack model, data = objective
+    @unpack μ, σ = model.val
+    return μ[1] + 100000
+end
+
 function ModelWrappers.predict(_rng::Random.AbstractRNG, objective::Objective{<:ModelWrapper{MyBaseModel}})
     @unpack model, data = objective
     @unpack μ, σ = model.val

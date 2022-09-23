@@ -67,8 +67,8 @@ function infer(
 #    Tlik = eltype(mcmc.kernel.result.θᵤ)
     TKernel = infer(_rng, diagnostics, mcmc.kernel, model, data)
     TPrediction = infer(_rng, mcmc, model, data)
-    TGenerated = infer_generated(_rng, mcmc, model, data)
-    return MCMCDiagnostics{TPrediction,TKernel,TGenerated}
+    TGenerated, TGenerated_algorithm = infer_generated(_rng, mcmc, model, data)
+    return MCMCDiagnostics{TPrediction,TKernel,TGenerated, TGenerated_algorithm}
 end
 
 """
@@ -98,7 +98,29 @@ function infer_generated(
     _rng::Random.AbstractRNG, mcmc::MCMC, model::ModelWrapper, data::D
 ) where {D}
     objective = Objective(model, data, mcmc.tune.tagged)
-    return typeof(generate(_rng, objective, mcmc.tune.generated))
+    TGenerated = typeof(generate(_rng, objective, mcmc.tune.generated))
+    TGenerated_algorithm = typeof(generate(_rng, mcmc, objective, mcmc.tune.generated))
+    return TGenerated, TGenerated_algorithm
+end
+
+############################################################################################
+"""
+$(SIGNATURES)
+Generate statistics for algorithm given model parameter and data.
+
+# Examples
+```julia
+```
+
+"""
+function generate(_rng::Random.AbstractRNG, algorithm::MCMC, objective::Objective)
+    return nothing
+end
+function generate(_rng::Random.AbstractRNG, algorithm::MCMC, objective::Objective, gen::BaytesCore.UpdateTrue)
+    return generate(_rng, algorithm, objective)
+end
+function generate(_rng::Random.AbstractRNG, algorithm::MCMC, objective::Objective, gen::BaytesCore.UpdateFalse)
+    return nothing
 end
 
 ############################################################################################

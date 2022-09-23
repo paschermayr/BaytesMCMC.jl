@@ -142,7 +142,8 @@ function propose(_rng::Random.AbstractRNG, mcmc::MCMC, objective::Objective)
         kernel_diagnostics,
         divergent,
         accept,
-        ModelWrappers.generate(_rng, objective, mcmc.tune.generated)
+        ModelWrappers.generate(_rng, objective, mcmc.tune.generated),
+        ModelWrappers.generate(_rng, mcmc, objective, mcmc.tune.generated)
     )
     return objective.model.val, diagnostics
 end
