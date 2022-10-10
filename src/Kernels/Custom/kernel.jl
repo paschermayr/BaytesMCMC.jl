@@ -22,6 +22,7 @@ end
 function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateTrue)
     ## Update log-target result with current (latent) data
     kernel.result = BaytesDiff.ℓDensityResult(objective)
+    BaytesDiff.checkfinite(objective, kernel.result)
     return nothing
 end
 function update!(kernel::Custom, objective::Objective, up::BaytesCore.UpdateFalse)
