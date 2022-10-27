@@ -201,7 +201,7 @@ function find_crossing_stepsize(parameters, A, ϵ₀, Aϵ₀=A(ϵ₀))
     if s < 0                    # when A(ϵ) < a,
         C = 1 / C                 # decrease ϵ
     end
-    for _ in 1:maxiter_crossing
+    for _ in Base.OneTo(maxiter_crossing)
         ϵ = ϵ₀ * C
         Aϵ = A(ϵ)
         if s * (Aϵ - a) ≤ 0
@@ -229,7 +229,7 @@ function bisect_stepsize(parameters, A, ϵ₀, ϵ₁, Aϵ₀=A(ϵ₀), Aϵ₁=A(
     @unpack a_min, a_max, maxiter_bisect = parameters
     @argcheck ϵ₀ < ϵ₁
     @argcheck Aϵ₀ > a_max && Aϵ₁ < a_min
-    for _ in 1:maxiter_bisect
+    for _ in Base.OneTo(maxiter_bisect)
         ϵₘ = Statistics.middle(ϵ₀, ϵ₁) #0.5*(ϵ₀ + ϵ₁)
         Aϵₘ = A(ϵₘ)
         if a_min ≤ Aϵₘ ≤ a_max  # in

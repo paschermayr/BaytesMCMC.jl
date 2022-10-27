@@ -83,7 +83,7 @@ function print_divergences(
     end
     ## Print results
     print("Divergences in: ")
-    for iter in 1:(length(counter) - 1)
+    for iter in Base.OneTo(length(counter) - 1)
         print(Base.nameof(typeof(phase_names[iter])), ": ", counter[iter], ", ")
     end
     for iter in length(counter)
