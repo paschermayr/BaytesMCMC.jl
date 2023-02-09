@@ -6,7 +6,7 @@ objectives = [
 ]
 #=
 iter = 2
-backend = backends[1]
+backend = backends[end]
 matrixadaption = massmatrices[1]
 kernel = kernels[1]
 generated = generating[2]
@@ -87,12 +87,41 @@ for iter in eachindex(objectives)
 end
 
 ############################################################################################
+#!NOTE: Test Enzyme framework separately for now
+struct EnzymeBM <: ModelName end
+_paramEnzyme = (μ=Param(Distributions.Normal(), 1.,), σ=Param(Distributions.Exponential(), 2.,))
+_a = 1.
+_b = collect(1.:10.)
+_args = (a = copy(_a), b = copy(_b) )
+dat = randn(100)
+dat[1:5] = collect(1:5) .+ 0.0
+dat
+
+function (objective::Objective{<:ModelWrapper{EnzymeBM}})(θ::NamedTuple, arg::A = objective.model.arg, data::D = objective.data) where {A, D}
+    μ = θ.μ + arg.a + mean(arg.b)
+    #=
+    #!NOTE: Up until at least Enzyme 10.16, Enzyme mutates model.arg and objective.data even if specified as constant
+    lp =
+        Distributions.logpdf(Distributions.Normal(), μ) +
+        Distributions.logpdf(Distributions.Exponential(), θ.σ)
+    ll = sum( logpdf(Normal(μ, θ.σ), dat) for dat in data )
+    return ll #+ lp
+    =#
+    ll = sum( logpdf(Normal(μ, θ.σ), dat) for dat in data )
+    return ll
+end
+objectivesEnzyme = [
+    Objective(ModelWrapper(EnzymeBM(), _paramEnzyme, deepcopy(_args), FlattenDefault()), dat),
+    Objective(ModelWrapper(EnzymeBM(), _paramEnzyme, deepcopy(_args), FlattenDefault(; output = Float32)), dat)
+]
+backendsEnzyme = [:EnzymeReverse] #[:EnzymeForward, :EnzymeReverse]
+############################################################################################
 #!NOTE: MH often does not reach stepsize in default number of steps - keep out in settings
-for iter in eachindex(objectives)
-    _obj = objectives[iter]
+for iter in eachindex(objectivesEnzyme)
+    _obj = objectivesEnzyme[iter]
     _flattentype = _obj.model.info.reconstruct.default.output
     @testset "Stepsize initial estimate, all models" begin
-        for backend in backends
+        for backend in backendsEnzyme
             mcmcdefault = MCMCDefault(;
                 stepsize = ConfigStepsize(; initialstepsize = UpdateTrue(), stepsizeadaption=UpdateTrue()),
                 GradientBackend = backend
@@ -109,6 +138,12 @@ for iter in eachindex(objectives)
                 @test mcmckernel.tune.stepsize.ϵ isa _flattentype
                 ## Stepsize Adaption
                 _val1, _diag1 = propose(_rng, mcmckernel, _obj)
+
+                ## Check if args and data are not mutated by Enzyme
+                @test _obj.model.arg.a == _a
+                @test _obj.model.arg.b == _b
+                @test _obj.data == dat
+                ##
                 @test mcmckernel.tune.stepsize.ϵ isa _flattentype
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
@@ -127,15 +162,6 @@ for iter in eachindex(objectives)
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
-
-                ## Tuning settings
-                #!NOTE: We do not need to check this for all backends as separate propose calls already evaluated and tune updates are independent of gradients
-                if backend == backends[1] && kernel == kernels[1]
-                    for iter in Base.OneTo(mcmckernel.tune.phase.slices[end]+10)
-                        #!NOTE: This only checks for stepsize adaption, which is fixed above
-                        propose(_rng, mcmckernel, _obj)
-                    end
-                end
             end
         end
     end

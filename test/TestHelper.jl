@@ -15,7 +15,7 @@ N = 10^3
 kernels = [NUTS, HMC, MALA, Metropolis, Custom]
 gradientkernels = [NUTS, HMC, MALA]
 
-backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]
+backends = [:ForwardDiff, :ReverseDiff, :ReverseDiffUntaped, :Zygote]#, :EnzymeForward, :EnzymeReverse]
 massmatrices = [MDense(), MDiagonal(), MUnit()]
 generating = [UpdateFalse(), UpdateTrue()]
 
@@ -26,7 +26,7 @@ generating = [UpdateFalse(), UpdateTrue()]
 data_uv = randn(_rng, 1000)
 
 struct MyBaseModel <: ModelName end
-myparameter = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
+myparameter = (μ = Param(Normal(), 0.0, ), σ = Param(Gamma(), 1.0, ))
 mymodel = ModelWrapper(MyBaseModel(), myparameter)
 
 #Create objective for both μ and σ and define a target function for it

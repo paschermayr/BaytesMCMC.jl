@@ -11,14 +11,18 @@ struct ConfigMALA <: AbstractConfiguration
     δ::Float64
     "Default size for tuning iterations in each cycle."
     window::ConfigTuningWindow
+    "Differentiable order for objective function needed to run proposal step"
+    difforder::BaytesDiff.DiffOrderOne
     function ConfigMALA(
         δ::Float64,
-        window::ConfigTuningWindow
+        window::ConfigTuningWindow,
+        difforder::BaytesDiff.DiffOrderOne
     )
         @argcheck 0.0 < δ <= 1.0 "Acceptance rate not bounded between 0 and 1"
         return new(
             δ,
-            window
+            window,
+            difforder
         )
     end
 end
@@ -48,7 +52,8 @@ function init(
 )
     return ConfigMALA(
         δ,
-        window
+        window,
+        BaytesDiff.DiffOrderOne()
     )
 end
 

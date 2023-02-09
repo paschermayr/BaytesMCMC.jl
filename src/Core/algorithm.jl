@@ -76,7 +76,7 @@ function MCMC(
     config = init(AbstractConfiguration, kernel, objective, default.proposal; default.kernel...)
     ##	If a valid AD backend is provided, change it to an AutomaticDifftune Object
     if isa(GradientBackend, Symbol)
-        GradientBackend = AutomaticDiffTune(GradientBackend, objective)
+        GradientBackend = AutomaticDiffTune(objective, GradientBackend, config.difforder)
     end
     ## Initiate MCMC Algorithm
     mcmc = init(kernel, config, objective, GradientBackend)
@@ -164,8 +164,6 @@ function propose!(
     model::ModelWrapper,
     data::D,
     proposaltune::T = BaytesCore.ProposalTune(model.info.reconstruct.default.output(1.0))
-#    temperature::F = model.info.reconstruct.default.output(1.0),
-#    update::U=BaytesCore.UpdateTrue(),
 ) where {D, T<:ProposalTune}
     ## Update Proposal tuning information that is shared among algorithms
     @unpack temperature, update = proposaltune

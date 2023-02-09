@@ -14,20 +14,23 @@ struct ConfigNUTS{K<:KineticEnergy} <: AbstractConfiguration
     window::ConfigTuningWindow
     "Kinetic Energy used in Hamiltonian: GaussianKineticEnergy"
     energy::K
+    "Differentiable order for objective function needed to run proposal step"
+    difforder::BaytesDiff.DiffOrderOne
     function ConfigNUTS(
         δ::Float64,
         window::ConfigTuningWindow,
         energy::K,
+        difforder::BaytesDiff.DiffOrderOne
     ) where {K<:KineticEnergy}
         @argcheck 0.0 < δ <= 1.0 "Acceptance rate not bounded between 0 and 1"
         return new{K}(
             δ,
             window,
-            energy
+            energy,
+            difforder
         )
     end
 end
-
 """
 $(SIGNATURES)
 Initialize NUTS custom configurations.
@@ -60,7 +63,8 @@ function init(
     return ConfigNUTS(
         δ,
         window,
-        energy
+        energy,
+        BaytesDiff.DiffOrderOne()
     )
 end
 

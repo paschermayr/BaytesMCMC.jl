@@ -7,16 +7,20 @@ struct ConfigCustom{F} <: AbstractConfiguration
     window::ConfigTuningWindow
     "A function/functor of a parameter vector θ that returns a valid Distribution to sample and evaluate from"
     proposal::F
+    "Differentiable order for objective function needed to run proposal step"
+    difforder::BaytesDiff.DiffOrderZero
     function ConfigCustom(
         δ::Float64,
         window::ConfigTuningWindow,
-        proposal::F
+        proposal::F,
+        difforder::BaytesDiff.DiffOrderZero
     ) where {F}
         @argcheck 0.0 < δ <= 1.0 "Acceptance rate not bounded between 0 and 1"
         return new{F}(
             δ,
             window,
-            proposal
+            proposal,
+            difforder
         )
     end
 end
@@ -68,7 +72,7 @@ end
 
 """
 $(SIGNATURES)
-Initialize Custom custom configurations.
+Initialize Custom configurations.
 
 # Examples
 ```julia
@@ -94,7 +98,8 @@ function init(
     return ConfigCustom(
         δ,
         window,
-        proposal
+        proposal,
+        BaytesDiff.DiffOrderZero()
     )
 end
 

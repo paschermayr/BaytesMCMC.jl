@@ -5,14 +5,18 @@ struct ConfigMetropolis <: AbstractConfiguration
     δ::Float64
     "Default size for tuning iterations in each cycle."
     window::ConfigTuningWindow
+    "Differentiable order for objective function needed to run proposal step"
+    difforder::BaytesDiff.DiffOrderZero
     function ConfigMetropolis(
         δ::Float64,
-        window::ConfigTuningWindow
+        window::ConfigTuningWindow,
+        difforder::BaytesDiff.DiffOrderZero
     )
         @argcheck 0.0 < δ <= 1.0 "Acceptance rate not bounded between 0 and 1"
         return new(
             δ,
             window,
+            difforder
         )
     end
 end
@@ -43,6 +47,7 @@ function init(
     return ConfigMetropolis(
         δ,
         window,
+        BaytesDiff.DiffOrderZero()
     )
 end
 

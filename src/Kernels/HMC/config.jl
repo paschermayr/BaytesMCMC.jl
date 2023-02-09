@@ -49,18 +49,22 @@ struct ConfigHMC{
     energy::K
     "Step Number adaption"
     stepnumber::S
+    "Differentiable order for objective function needed to run proposal step"
+    difforder::BaytesDiff.DiffOrderOne
     function ConfigHMC(
         δ::Float64,
         window::ConfigTuningWindow,
         energy::K,
         stepnumber::S,
+        difforder::BaytesDiff.DiffOrderOne
     ) where {K<:KineticEnergy,S<:ConfigStepnumber}
         @argcheck 0.0 < δ <= 1.0 "Acceptance rate not bounded between 0 and 1."
         return new{K,S}(
             δ,
             window,
             energy,
-            stepnumber
+            stepnumber,
+            BaytesDiff.DiffOrderOne()
         )
     end
 end
@@ -97,7 +101,8 @@ function init(
         δ,
         window,
         energy,
-        stepnumber
+        stepnumber,
+        BaytesDiff.DiffOrderOne()
     )
 end
 
