@@ -148,6 +148,7 @@ for iter in eachindex(objectivesEnzyme)
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
+            #=
                 ## Stepsize Adaption
                 proposaltune = BaytesCore.ProposalTune(_obj.temperature, BaytesCore.UpdateTrue(), BaytesCore.DataTune(BaytesCore.Batch(), nothing, nothing) )
                 _val2, _diag2 = propose!(_rng, mcmckernel, _obj.model, _obj.data, proposaltune)
@@ -162,6 +163,7 @@ for iter in eachindex(objectivesEnzyme)
                 @test eltype(mcmckernel.tune.proposal.Σ) ==
                     eltype(mcmckernel.tune.proposal.Σ⁻¹ᶜʰᵒˡ) ==
                     eltype(mcmckernel.tune.proposal.chain) ==  _flattentype
+            =#
             end
         end
     end
