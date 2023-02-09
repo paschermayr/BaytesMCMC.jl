@@ -30,7 +30,7 @@ using ModelWrappers, BaytesMCMC
 using Distributions, Random, UnPack
 _rng = Random.GLOBAL_RNG
 #Create Model and data
-myparameter = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
+myparameter = (μ = Param(Normal(), 0.0, ), σ = Param(Gamma(), 1.0, ))
 mymodel = ModelWrapper(myparameter)
 data = randn(1000)
 #Create objective for both μ and σ and define a target function for it
@@ -45,10 +45,10 @@ end
 
 We can assign an MCMC Kernel to this model by simply calling
 ```julia
-mcmc_nuts = MCMC(NUTS, myobjective)
-mcmc_hmc = MCMC(HMC, myobjective)
-mcmc_mala = MCMC(MALA, myobjective)
-mcmc_metropolis = MCMC(Metropolis, myobjective)
+mcmc_nuts = MCMC(_rng, NUTS, myobjective)
+mcmc_hmc = MCMC(_rng, HMC, myobjective)
+mcmc_mala = MCMC(_rng, MALA, myobjective)
+mcmc_metropolis = MCMC(_rng, Metropolis, myobjective)
 ```
 
 There are two standard ways to make proposal steps in BaytesMCMC.
@@ -79,7 +79,7 @@ mcmcdefault = MCMCDefault(;
 	GradientBackend = :ReverseDiff,
 )
 
-mcmc_customized = MCMC(HMC, myobjective, mcmcdefault)
+mcmc_customized = MCMC(_rng, HMC, myobjective, mcmcdefault)
 _val, _diagnostics = propose(_rng, mcmc_customized, myobjective)
 _val, _diagnostics = propose!(_rng, mcmc_customized, mymodel, data)
 ```
@@ -102,9 +102,9 @@ end
 predict(_rng, myobjective)
 generate(_rng, myobjective)
 
-mcmc_nuts = MCMC(NUTS, myobjective, MCMCDefault(generated = UpdateTrue()))
+mcmc_nuts = MCMC(_rng, NUTS, myobjective, MCMCDefault(generated = UpdateTrue()))
 _val, _diagnostics = propose(_rng, mcmc_nuts, myobjective)
-_diagnostics.prediction
+_diagnostics.base.prediction
 _diagnostics.generated
 ```
 
