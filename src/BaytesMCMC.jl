@@ -86,7 +86,7 @@ using Distributions: Distributions, logpdf, MvNormal
 using DocStringExtensions:
     DocStringExtensions, TYPEDEF, TYPEDFIELDS, FIELDS, SIGNATURES, FUNCTIONNAME
 using ArgCheck: ArgCheck, @argcheck
-using UnPack: UnPack, @unpack, @pack!
+using SimpleUnPack: SimpleUnPack, @unpack, @pack!
 
 ################################################################################
 #Abstract types to be dispatched in Examples section
