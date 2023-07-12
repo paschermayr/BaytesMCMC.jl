@@ -89,7 +89,7 @@ function MCMC(
         output,
         default.proposal.proposaladaption,
         MatrixTune(default.proposal.metric, default.proposal.shrinkage),
-        length(objective.tagged),
+        ModelWrappers.length_unconstrained(objective.tagged),
         phasetune.iterations[phasetune.counter.current],
         default.proposal.covariance
     )

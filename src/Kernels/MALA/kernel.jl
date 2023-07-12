@@ -107,7 +107,7 @@ end
 ############################################################################################
 function get_acceptrate(
     _rng::Random.AbstractRNG, kernel::MALA, objective::Objective, Σ::M
-) where {M<:AbstractMatrix} # = LinearAlgebra.Diagonal(ones(length(objective.tagged)))
+) where {M<:AbstractMatrix} # = LinearAlgebra.Diagonal(ones(ModelWrappers.length_unconstrained(objective.tagged)))
     ## Calculate current logposterior and proposal density
     @unpack result = kernel
     ## Function of stepsize

@@ -47,7 +47,8 @@ using ModelWrappers:
     Tagged,
     Objective,
     sample,
-    sample!
+    sample!,
+    length_unconstrained
 
 import ModelWrappers:
     ModelWrappers,

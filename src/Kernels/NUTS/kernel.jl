@@ -111,7 +111,7 @@ Tune initial step size.
 """
 function get_acceptrate(
     _rng::Random.AbstractRNG, kernel::NUTS, objective::Objective, Σ::M
-) where {M<:AbstractMatrix} # LinearAlgebra.Diagonal(ones(length(objective.tagged)))
+) where {M<:AbstractMatrix} # LinearAlgebra.Diagonal(ones(ModelWrappers.length_unconstrained(objective.tagged)))
     ## Update Hamiltonian with current Σ and log-posterior adjusted for (latent/new) data
     H = Hamiltonian(kernel.energy, DiffObjective(objective, kernel.diff))
     ## Create new trajectory and phasepoint, and evaluate Hamiltonian at phasepoint
