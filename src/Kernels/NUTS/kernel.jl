@@ -14,10 +14,13 @@ mutable struct NUTS{R<:ℓObjectiveResult,D<:AbstractDifferentiableTune,C<:Kinet
     diff::D
     "Energy used for Hamiltonian."
     energy::C
+    "Maximum tree depth for U-Turn"
+    max_depth::Int64
     function NUTS(
-        result::R, diff::D, energy::C
+        result::R, diff::D, energy::C, max_depth::Int64
     ) where {R<:ℓObjectiveResult,D<:AbstractDifferentiableTune,C<:KineticEnergy}
-        return new{R,D,C}(result, diff, energy)
+        @argcheck 0 < max_depth <= MAX_DIRECTIONS_DEPTH "max tree depth bounded by 32, set a value lower than this."
+        return new{R,D,C}(result, diff, energy, max_depth)
     end
 end
 function NUTS(sym::S; kwargs...) where {S<:Union{Symbol,NTuple{k,Symbol} where k}}
@@ -89,7 +92,7 @@ function propagate(
     H = Hamiltonian(kernel.energy, diff)
     ## Create new trajectory and phasepoint, and evaluate Hamiltonian at phasepoint
     phasepoint = PhasePoint(kernel.result, rand_ρ(_rng, H.K))
-    trajectory = TrajectoryNUTS(H, ℓdensity(H, phasepoint), ϵ)
+    trajectory = TrajectoryNUTS(H, ℓdensity(H, phasepoint), ϵ, kernel.max_depth)
     ## Sample from NUTS trajectory
     phasepointᵖ, sampler_statistic = sample_tree(_rng, trajectory, phasepoint)
     ## Pack container and return output

@@ -32,7 +32,7 @@ The DynamicHMC.jl package is licensed under the MIT "Expat" License:
 const MAX_DIRECTIONS_DEPTH = 32
 
 "Default maximum depth for trees."
-const DEFAULT_MAX_TREE_DEPTH = 10
+#const DEFAULT_MAX_TREE_DEPTH = 10
 
 ############################################################################################
 #Include

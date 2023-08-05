@@ -6,7 +6,7 @@ function init(
     difftune::AbstractDifferentiableTune,
 )
     return NUTS(
-        BaytesDiff.log_density_and_gradient(objective, difftune), difftune, config.energy
+        BaytesDiff.log_density_and_gradient(objective, difftune), difftune, config.energy, config.max_depth
     )
 end
 

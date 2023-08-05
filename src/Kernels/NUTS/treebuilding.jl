@@ -20,7 +20,7 @@ struct TrajectoryNUTS{S<:Hamiltonian,F,C}
         H::S,
         ℓH₀::F,
         ϵ::F,
-        max_depth=DEFAULT_MAX_TREE_DEPTH,
+        max_depth::Int64, # = DEFAULT_MAX_TREE_DEPTH,
         min_Δ=-1000.0,
         turn_statistic_configuration=Val{:generalized}(),
     ) where {S<:Hamiltonian,F<:AbstractFloat}
