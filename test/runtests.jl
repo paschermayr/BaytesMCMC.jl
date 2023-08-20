@@ -9,6 +9,10 @@ using Distributions
 # Import Baytes Packages
 using BaytesCore, ModelWrappers, BaytesMCMC
 #using .BaytesMCMC
+
+#AD backends for BaytesDiff
+using ForwardDiff, ReverseDiff, Zygote
+
 ############################################################################################
 # Include Files
 include("TestHelper.jl")
